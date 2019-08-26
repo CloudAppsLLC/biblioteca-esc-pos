@@ -25,6 +25,7 @@ namespace BibliotecaImpressaoEscPos
         void SetStyleOn(byte style, ref byte underlineHeight);
         void SetStyleOff(ref byte underlineHeight);
         void WhiteOnBlackOn();
+        void SetMarginLeft(byte value);
         void WhiteOnBlackOff();
         void SetSize(bool doubleWidth, bool doubleHeight);
         void LineFeed();
@@ -47,5 +48,6 @@ namespace BibliotecaImpressaoEscPos
         void FeedDots(byte dotsToFeed);
         void WriteToBuffer(string text);
         void Guillotine();
+        void SetLetterSpacing(byte letterSpacing);
     }
 }

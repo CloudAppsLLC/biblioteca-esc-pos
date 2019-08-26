@@ -1,13 +1,105 @@
-﻿using BibliotecaImpressaoEscPos.PortFactory.Enums;
+﻿using BibliotecaImpressaoEscPos.Builder;
+using BibliotecaImpressaoEscPos.PortFactory.Enums;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Text.RegularExpressions;
 
 namespace BibliotecaImpressaoEscPos.Console
 {
     class Program
     {
         static void Main(string[] args)
+        {
+            var content = @"
+                                <ce>centralizado</ce>
+                                normal
+                                <ad>
+                                    a direita
+                                    <b>negrito e a direita</b>
+                                </ad>
+                                <b>apenas negrito</b>
+                                <ad>normal a direita</ad>
+                                <gui/>
+                           ";
+
+            var cleaned = string.Join("", Regex.Split(content, @"(?:\r\n|\n|\r| )"));
+            TesteInterpretador(cleaned);
+
+            //TestePrinter();
+        }
+
+        static void TesteInterpretador(string content)
+        {
+            try
+            {
+                var elements = XmlLoader.Load(content);
+                var commands = Interpreter.InterpreteElements(elements);
+
+                using (IPrinter printer = new Printer("COM4", 2, 180, 2))
+                {
+                    printer.WakeUp();
+                    printer.Reset();
+                    //printer.SetMarginLeft(20);
+
+                    foreach (var command in commands)
+                    {
+                        if (!string.IsNullOrEmpty(command))
+                        {
+                            byte underlineHeight = 0;
+                            switch (command)
+                            {
+                                case "<ad>":
+                                    printer.SetAlignRight();
+                                    break;
+                                case "</ad>":
+                                    printer.SetAlignLeft();
+                                    break;
+
+                                case "<b>":
+                                    printer.BoldOn();
+                                    break;
+                                case "</b>":
+                                    printer.BoldOff();
+                                    break;
+
+                                case "<c>":
+                                    printer.SetLineSpacing(0);
+                                    printer.SetLetterSpacing(0);
+                                    break;
+                                case "</c>":
+                                    printer.SetLineSpacing(10);
+                                    printer.SetLetterSpacing(10);
+                                    break;
+
+                                case "<ce>":
+                                    printer.SetAlignCenter();
+                                    break;
+                                case "</ce>":
+                                    printer.SetAlignLeft();
+                                    break;
+
+                                case "<gui>":
+                                    printer.Guillotine();
+                                    break;
+                                case "</gui>":
+                                    break;
+
+                                default:
+                                    printer.WriteLine(command);
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                System.Console.ReadKey();
+            }
+        }
+
+        static void TestePrinter()
         {
             try
             {
@@ -74,7 +166,24 @@ namespace BibliotecaImpressaoEscPos.Console
             int total = 0;
             foreach (var item in ItemList)
             {
-                CashRegister(printer, item.Key, item.Value);
+                var key = item.Key;
+                var value = item.Value;
+                printer.Reset();
+                printer.Indent(0);
+
+                if (key.Length > 24)
+                {
+                    key = key.Substring(0, 23) + ".";
+                }
+
+                printer.WriteToBuffer(key.ToUpper());
+                printer.Indent(25);
+                var sPrice = string.Format("{0:0.00}", (double)value / 100);
+
+                sPrice = sPrice.PadLeft(7);
+
+                printer.WriteLine(sPrice);
+                printer.Reset();
                 total += item.Value;
             }
 
@@ -127,26 +236,6 @@ namespace BibliotecaImpressaoEscPos.Console
             printer.PrintImage(img);
             printer.LineFeed();
             printer.WriteLine("Image OK");
-        }
-
-        static void CashRegister(IPrinter printer, string item, int price)
-        {
-            printer.Reset();
-            printer.Indent(0);
-
-            if (item.Length > 24)
-            {
-                item = item.Substring(0, 23) + ".";
-            }
-
-            printer.WriteToBuffer(item.ToUpper());
-            printer.Indent(25);
-            var sPrice = string.Format("{0:0.00}", (double)price / 100);
-
-            sPrice = sPrice.PadLeft(7);
-
-            printer.WriteLine(sPrice);
-            printer.Reset();
         }
     }
 }

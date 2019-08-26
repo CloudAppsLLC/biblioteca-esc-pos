@@ -93,6 +93,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Builder\Interpreter.cs" />
+    <Compile Include="Builder\XmlLoader.cs" />
     <Compile Include="IPrinter.cs" />
     <Compile Include="PortFactory\Enums\BarcodeType.cs" />
     <Compile Include="PortFactory\Enums\PrintingStyle.cs" />

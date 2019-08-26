@@ -583,5 +583,20 @@ namespace BibliotecaImpressaoEscPos
         }
 
         public void WriteToBuffer(string text) => WriteToBuffer(text, LocalEncoding);
+
+        public void SetMarginLeft(byte value)
+        {
+            WriteByte(29);
+            WriteByte(76);
+            WriteByte(value);
+            WriteByte(0);
+        }
+
+        public void SetLetterSpacing(byte letterSpacing)
+        {
+            WriteByte(27);
+            WriteByte(32);
+            WriteByte(letterSpacing);
+        }
     }
 }
