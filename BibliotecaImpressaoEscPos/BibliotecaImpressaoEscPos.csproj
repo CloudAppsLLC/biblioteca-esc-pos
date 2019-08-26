@@ -93,15 +93,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commands\Barcode.cs" />
-    <Compile Include="Commands\Text.cs" />
-    <Compile Include="Enums\Align.cs" />
-    <Compile Include="Enums\BarcodeSystem.cs" />
-    <Compile Include="Enums\BarcodeType.cs" />
-    <Compile Include="Enums\PositionReadingHumanCharacter.cs" />
+    <Compile Include="IPrinter.cs" />
+    <Compile Include="PortFactory\Enums\BarcodeType.cs" />
+    <Compile Include="PortFactory\Enums\PrintingStyle.cs" />
+    <Compile Include="PortFactory\PortWriter.cs" />
     <Compile Include="Printer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

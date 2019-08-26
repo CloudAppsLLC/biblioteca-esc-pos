@@ -1,66 +1,61 @@
-﻿using System;
+﻿using BibliotecaImpressaoEscPos.PortFactory;
+using BibliotecaImpressaoEscPos.PortFactory.Enums;
+using System;
 using System.Drawing;
 using System.IO;
-using System.IO.Ports;
 using System.Text;
 using System.Threading;
 
 namespace BibliotecaImpressaoEscPos
 {
-    public class Printer
+    public class Printer : PortWriter, IPrinter
     {
-        private SerialPort PortCOM;
         private byte MaxPrinting = 7;
         private byte HeatingTime = 80;
         private byte HeatingInterval = 2;
 
-        public int PictureLineSleepTimeMs = 40;
-        public int WriteLineSleepTimeMs = 0;
+        public int PictureLineSleepTimeMs { get; set; } = 40;
+        public int WriteLineSleepTimeMs { get; set; } = 0;
 
-        public string LocalEncoding { get; private set; }
+        public string LocalEncoding { get; set; }
 
-        public Printer(SerialPort serialPort, byte maxPrintingDots, byte heatingTime, byte heatingInterval)
+        public Printer(string serialPort, byte maxPrinting, byte heatingTime, byte heatingInterval) : base(serialPort)
         {
-            Constructor(serialPort, maxPrintingDots, heatingTime, heatingInterval);
+            Constructor(serialPort, maxPrinting, heatingTime, heatingInterval);
         }
 
-        public Printer(SerialPort serialPort)
+        public Printer(string serialPort) : base(serialPort)
         {
             Constructor(serialPort, MaxPrinting, HeatingTime, HeatingInterval);
         }
 
-        private void Constructor(SerialPort serialPort, byte maxPrintingDots, byte heatingTime, byte heatingInterval)
+        private void Constructor(string serialPort, byte maxPrinting, byte heatingTime, byte heatingInterval)
         {
-            LocalEncoding = "ibm850";
+            if (base.Initialized)
+            {
+                LocalEncoding = "ibm850";
 
-            MaxPrinting = maxPrintingDots;
-            HeatingTime = heatingTime;
-            HeatingInterval = heatingInterval;
+                MaxPrinting = maxPrinting;
+                HeatingTime = heatingTime;
+                HeatingInterval = heatingInterval;
 
-            PortCOM = serialPort;
+                Reset();
 
-            Reset();
-
-            SetPrintingParameters(maxPrintingDots, heatingTime, heatingInterval);
-            SendEncoding(LocalEncoding);
+                SetPrintingParameters(maxPrinting, heatingTime, heatingInterval);
+                SendEncoding(LocalEncoding);
+            }
+            else
+            {
+                throw base.InternalException;
+            }
         }
 
         public void WriteLine(string text)
         {
-            WriteToBuffer(text);
+            WriteToBuffer(text, LocalEncoding);
             WriteByte(10);
 
             Thread.Sleep(WriteLineSleepTimeMs);
-        }
-
-        public void WriteToBuffer(string text)
-        {
-            text = text.Trim('\n').Trim('\r');
-
-            byte[] originalBytes = Encoding.UTF8.GetBytes(text);
-            byte[] outputBytes = Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(this.LocalEncoding), originalBytes);
-
-            PortCOM.Write(outputBytes, 0, outputBytes.Length);
         }
 
         public void SetInversionOn()
@@ -304,21 +299,6 @@ namespace BibliotecaImpressaoEscPos
             Thread.Sleep(50);
         }
 
-        public enum BarcodeType
-        {
-            upc_a = 0,
-            upc_e = 1,
-            ean13 = 2,
-            ean8 = 3,
-            code39 = 4,
-            i25 = 5,
-            codebar = 6,
-            code93 = 7,
-            code128 = 8,
-            code11 = 9,
-            msi = 10
-        }
-
         public void PrintBarcode(BarcodeType type, string data)
         {
             byte[] originalBytes;
@@ -326,13 +306,13 @@ namespace BibliotecaImpressaoEscPos
 
             if (type == BarcodeType.code93 || type == BarcodeType.code128)
             {
-                originalBytes = System.Text.Encoding.UTF8.GetBytes(data);
+                originalBytes = Encoding.UTF8.GetBytes(data);
                 outputBytes = originalBytes;
             }
             else
             {
-                originalBytes = System.Text.Encoding.UTF8.GetBytes(data.ToUpper());
-                outputBytes = System.Text.Encoding.Convert(System.Text.Encoding.UTF8, System.Text.Encoding.GetEncoding(this.LocalEncoding), originalBytes);
+                originalBytes = Encoding.UTF8.GetBytes(data.ToUpper());
+                outputBytes = Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(LocalEncoding), originalBytes);
             }
 
             switch (type)
@@ -343,7 +323,7 @@ namespace BibliotecaImpressaoEscPos
                         WriteByte(29);
                         WriteByte(107);
                         WriteByte(0);
-                        PortCOM.Write(outputBytes, 0, data.Length);
+                        Write(outputBytes, 0, data.Length);
                         WriteByte(0);
                     }
                     break;
@@ -353,7 +333,7 @@ namespace BibliotecaImpressaoEscPos
                         WriteByte(29);
                         WriteByte(107);
                         WriteByte(1);
-                        PortCOM.Write(outputBytes, 0, data.Length);
+                        Write(outputBytes, 0, data.Length);
                         WriteByte(0);
                     }
                     break;
@@ -363,7 +343,7 @@ namespace BibliotecaImpressaoEscPos
                         WriteByte(29);
                         WriteByte(107);
                         WriteByte(2);
-                        PortCOM.Write(outputBytes, 0, data.Length);
+                        Write(outputBytes, 0, data.Length);
                         WriteByte(0);
                     }
                     break;
@@ -373,7 +353,7 @@ namespace BibliotecaImpressaoEscPos
                         WriteByte(29);
                         WriteByte(107);
                         WriteByte(3);
-                        PortCOM.Write(outputBytes, 0, data.Length);
+                        Write(outputBytes, 0, data.Length);
                         WriteByte(0);
                     }
                     break;
@@ -383,7 +363,7 @@ namespace BibliotecaImpressaoEscPos
                         WriteByte(29);
                         WriteByte(107);
                         WriteByte(4);
-                        PortCOM.Write(outputBytes, 0, data.Length);
+                        Write(outputBytes, 0, data.Length);
                         WriteByte(0);
                     }
                     break;
@@ -393,7 +373,7 @@ namespace BibliotecaImpressaoEscPos
                         WriteByte(29);
                         WriteByte(107);
                         WriteByte(5);
-                        PortCOM.Write(outputBytes, 0, data.Length);
+                        Write(outputBytes, 0, data.Length);
                         WriteByte(0);
                     }
                     break;
@@ -403,7 +383,7 @@ namespace BibliotecaImpressaoEscPos
                         WriteByte(29);
                         WriteByte(107);
                         WriteByte(6);
-                        PortCOM.Write(outputBytes, 0, data.Length);
+                        Write(outputBytes, 0, data.Length);
                         WriteByte(0);
                     }
                     break;
@@ -413,7 +393,7 @@ namespace BibliotecaImpressaoEscPos
                         WriteByte(29);
                         WriteByte(107);
                         WriteByte(7); //todo: use format 2 (init string : 29,107,72) (0x00 can be a value, too)
-                        PortCOM.Write(outputBytes, 0, data.Length);
+                        Write(outputBytes, 0, data.Length);
                         WriteByte(0);
                     }
                     break;
@@ -423,7 +403,7 @@ namespace BibliotecaImpressaoEscPos
                         WriteByte(29);
                         WriteByte(107);
                         WriteByte(8); //todo: use format 2 (init string : 29,107,73) (0x00 can be a value, too)
-                        PortCOM.Write(outputBytes, 0, data.Length);
+                        Write(outputBytes, 0, data.Length);
                         WriteByte(0);
                     }
                     break;
@@ -433,7 +413,7 @@ namespace BibliotecaImpressaoEscPos
                         WriteByte(29);
                         WriteByte(107);
                         WriteByte(9);
-                        PortCOM.Write(outputBytes, 0, data.Length);
+                        Write(outputBytes, 0, data.Length);
                         WriteByte(0);
                     }
                     break;
@@ -443,7 +423,7 @@ namespace BibliotecaImpressaoEscPos
                         WriteByte(29);
                         WriteByte(107);
                         WriteByte(10);
-                        PortCOM.Write(outputBytes, 0, data.Length);
+                        Write(outputBytes, 0, data.Length);
                         WriteByte(0);
                     }
                     break;
@@ -473,12 +453,6 @@ namespace BibliotecaImpressaoEscPos
             WriteByte(spacingDots);
         }
 
-        /// <summary>
-        /// Prints the image. The image must be 384px wide.
-        /// </summary>
-        /// <param name='fileName'>
-        /// Image file path.
-        /// </param>
         public void PrintImage(string fileName)
         {
 
@@ -491,12 +465,6 @@ namespace BibliotecaImpressaoEscPos
 
         }
 
-        /// <summary>
-        /// Prints the image. The image must be 384px wide.
-        /// </summary>
-        /// <param name='image'>
-        /// Image to print.
-        /// </param>
         public void PrintImage(Bitmap image)
         {
             int width = image.Width;
@@ -509,7 +477,7 @@ namespace BibliotecaImpressaoEscPos
                 throw (new Exception("Image width must be 384px, height cannot exceed 65635px."));
             }
 
-            //Processing image data	
+            // Processing image data	
             for (int y = 0; y < image.Height; y++)
             {
                 for (int x = 0; x < (image.Width / 8); x++)
@@ -526,12 +494,12 @@ namespace BibliotecaImpressaoEscPos
                 }
             }
 
-            //Print LSB first bitmap
+            // Print LSB first bitmap
             WriteByte(18);
             WriteByte(118);
 
-            WriteByte((byte)(height & 255));   //height LSB
-            WriteByte((byte)(height >> 8));    //height MSB
+            WriteByte((byte)(height & 255));   // height LSB
+            WriteByte((byte)(height >> 8));    // height MSB
 
 
             for (int y = 0; y < height; y++)
@@ -544,11 +512,11 @@ namespace BibliotecaImpressaoEscPos
             }
         }
 
-        public void SetPrintingParameters(byte maxPrintingDots, byte heatingTime, byte heatingInterval)
+        public void SetPrintingParameters(byte maxPrinting, byte heatingTime, byte heatingInterval)
         {
             WriteByte(27);
             WriteByte(55);
-            WriteByte(maxPrintingDots);
+            WriteByte(maxPrinting);
             WriteByte(heatingTime);
             WriteByte(heatingInterval);
         }
@@ -571,20 +539,8 @@ namespace BibliotecaImpressaoEscPos
         {
             return string.Format("Printer:\n\tSerialPort={0},\n\tMaxPrinting={1}," +
                 "\n\tHeatingTime={2},\n\tHeatingInterval={3},\n\tPictureLineSleepTimeMs={4}," +
-                "\n\tWriteLineSleepTimeMs={5},\n\tLocalEncoding={6}", PortCOM.PortName, MaxPrinting,
+                "\n\tWriteLineSleepTimeMs={5},\n\tLocalEncoding={6}", GetPortName(), MaxPrinting,
                 HeatingTime, HeatingInterval, PictureLineSleepTimeMs, WriteLineSleepTimeMs, LocalEncoding);
-        }
-
-        public enum PrintingStyle
-        {
-            Reverse = 1 << 1,
-            Updown = 1 << 2,
-            Bold = 1 << 3,
-            DoubleHeight = 1 << 4,
-            DoubleWidth = 1 << 5,
-            DeleteLine = 1 << 6,
-            Underline = 1 << 0,
-            ThickUnderline = 1 << 7
         }
 
         public void FeedDots(byte dotsToFeed)
@@ -592,30 +548,6 @@ namespace BibliotecaImpressaoEscPos
             WriteByte(27);
             WriteByte(74);
             WriteByte(dotsToFeed);
-        }
-
-        private void WriteByte(byte valueToWrite)
-        {
-            byte[] tempArray = { valueToWrite };
-            PortCOM.Write(tempArray, 0, 1);
-        }
-
-        private string IntArrayToStringCmd(int[] command)
-        {
-            string @return = string.Empty;
-
-            for (int i = 0; i < command.Length; i++)
-            {
-                @return += Convert.ToChar(command[i]).ToString();
-            }
-            Console.WriteLine(@return);
-
-            return @return;
-        }
-
-        private void WriteIntegers(params int[] vTWs)
-        {
-            PortCOM.Write(IntArrayToStringCmd(vTWs));
         }
 
         private void SendEncoding(string encoding)
@@ -649,5 +581,7 @@ namespace BibliotecaImpressaoEscPos
         {
             return originalValue &= (byte)(~(1 << bit));
         }
+
+        public void WriteToBuffer(string text) => WriteToBuffer(text, LocalEncoding);
     }
 }
