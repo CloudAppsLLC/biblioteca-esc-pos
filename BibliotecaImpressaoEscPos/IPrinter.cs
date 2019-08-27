@@ -1,7 +1,7 @@
 ﻿using EscPosPrinter.PortFactory.Enums;
 using System;
-using System.Drawing;
 using System.Collections.Generic;
+using System.Drawing;
 
 namespace EscPosPrinter
 {
@@ -37,6 +37,7 @@ namespace EscPosPrinter
         void SetAlignCenter();
         void SetAlignRight();
         void HorizontalLine(int length);
+        void ExecuteActions(IList<Action> actionsForPrinter);
         void Reset();
         void PrintBarcode(BarcodeType type, string data);
         void SetLargeBarcode(bool large);
@@ -50,6 +51,5 @@ namespace EscPosPrinter
         void WriteToBuffer(string text);
         void Guillotine();
         void SetLetterSpacing(byte letterSpacing);
-        void ExecuteActions(IList<Action> actionsForPrinter);
     }
 }

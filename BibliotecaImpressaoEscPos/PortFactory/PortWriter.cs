@@ -20,7 +20,6 @@ namespace EscPosPrinter.PortFactory
         private void ErrorTreatment(Exception ex, string text)
         {
             var ErrorMessage = $"{text} ({ex.Message})";
-            Console.WriteLine(ErrorMessage);
             Initialized = false;
             InternalException = ex;
             InternalExceptionCustomMessage = text;
@@ -32,14 +31,11 @@ namespace EscPosPrinter.PortFactory
 
             if (printerPort != null)
             {
-                System.Console.WriteLine($"Porta {serialPort}: OK!");
                 if (printerPort.IsOpen)
                 {
                     printerPort.Close();
                 }
             }
-
-            Console.WriteLine($"Abrindo a porta {serialPort}...");
 
             try
             {
@@ -94,7 +90,6 @@ namespace EscPosPrinter.PortFactory
             {
                 @return += Convert.ToChar(command[i]).ToString();
             }
-            Console.WriteLine(@return);
 
             return @return;
         }

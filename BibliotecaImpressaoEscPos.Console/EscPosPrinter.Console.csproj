@@ -43,10 +43,6 @@
       <HintPath>..\packages\Csv.1.0.31\lib\net40\Csv.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="EscPosPrinter, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\EscPosPrinter.1.0.0-beta\lib\net40\EscPosPrinter.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="FluentFTP, Version=19.2.2.0, Culture=neutral, PublicKeyToken=f4af092b1d8df44f, processorArchitecture=MSIL">
       <HintPath>..\packages\FluentFTP.19.2.2\lib\net45\FluentFTP.dll</HintPath>
       <Private>True</Private>
@@ -107,7 +103,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BibliotecaImpressaoEscPos\EscPosPrinter.csproj">
+      <Project>{b4c6b10b-dee3-4604-bdac-c7d47d122e99}</Project>
+      <Name>EscPosPrinter</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

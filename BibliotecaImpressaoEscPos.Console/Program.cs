@@ -1,25 +1,34 @@
 ﻿using EscPosPrinter.PortFactory.Enums;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
+using System.Threading;
 
 namespace EscPosPrinter.Console
 {
     class Program
     {
+        static int tryCount = 0;
+        static readonly Stopwatch watch = new Stopwatch();
+
         static void Main(string[] args)
         {
-            TesteInterpretador();
+            watch.Start();
+            TesteInterpretador(3);
+            watch.Stop();
+            System.Console.WriteLine($"Tempo decorrido: {watch.ElapsedMilliseconds}ms");
+            System.Console.WriteLine();
 
             //TestePrinter();
             System.Console.ReadKey();
         }
 
-        static void TesteInterpretador()
+        static void TesteInterpretador(int port)
         {
             try
             {
-                using (IPrinter printer = new Printer(4))
+                using (IPrinter printer = new Printer(port))
                 {
                     var xml = @"<ce>centralizado</ce>
                             <l></l>
@@ -39,11 +48,16 @@ namespace EscPosPrinter.Console
 
                     if (actionsForPrinter != null)
                         printer.ExecuteActions(actionsForPrinter);
+
+                    printer.Reset();
+                    printer.Sleep();
                 }
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine("{0} => {1}", ex.Message, ex.StackTrace);
+                tryCount++;
+                System.Console.WriteLine($"Tentativa: {tryCount}");
+                TesteInterpretador(port);
             }
         }
 
