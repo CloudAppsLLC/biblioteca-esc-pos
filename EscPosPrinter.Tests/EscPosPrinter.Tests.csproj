@@ -74,7 +74,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BibliotecaImpressaoEscPos\EscPosPrinter.csproj">
+    <ProjectReference Include="..\EscPosPrinter\EscPosPrinter.csproj">
       <Project>{B4C6B10B-DEE3-4604-BDAC-C7D47D122E99}</Project>
       <Name>EscPosPrinter</Name>
     </ProjectReference>

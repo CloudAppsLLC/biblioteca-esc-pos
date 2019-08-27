@@ -105,7 +105,7 @@
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BibliotecaImpressaoEscPos\EscPosPrinter.csproj">
+    <ProjectReference Include="..\EscPosPrinter\EscPosPrinter.csproj">
       <Project>{b4c6b10b-dee3-4604-bdac-c7d47d122e99}</Project>
       <Name>EscPosPrinter</Name>
     </ProjectReference>

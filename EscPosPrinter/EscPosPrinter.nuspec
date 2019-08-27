@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>EscPosPrinter</id>
-    <version>1.0.0-beta</version>
+    <version>1.0.0-beta001</version>
     <title>ESC/POS Printer with tag interpreter for text formatation (for Thermal Printer).</title>
     <authors>Luiz de Queiroz</authors>
     <owners>Luiz de Queiroz</owners>
