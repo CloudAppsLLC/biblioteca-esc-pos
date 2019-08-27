@@ -11,7 +11,7 @@ namespace EscPosPrinter.Console
         {
             TesteInterpretador();
 
-            TestePrinter();
+            //TestePrinter();
             System.Console.ReadKey();
         }
 
@@ -19,7 +19,7 @@ namespace EscPosPrinter.Console
         {
             try
             {
-                using (IPrinter printer = new Printer(4, 2, 180, 2))
+                using (IPrinter printer = new Printer(4))
                 {
                     var xml = @"<ce>centralizado</ce>
                             <l></l>
