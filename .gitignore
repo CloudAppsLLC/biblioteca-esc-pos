@@ -2,3 +2,8 @@
 bin/
 obj/
 /packages
+*.nupkg
+*.dll
+*.pdb
+*.xml
+/EscPosPrinter.Tests/EscPosPrinter.Tests.dll.config

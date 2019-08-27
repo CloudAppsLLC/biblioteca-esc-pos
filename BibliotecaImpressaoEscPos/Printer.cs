@@ -1,12 +1,12 @@
-﻿using BibliotecaImpressaoEscPos.PortFactory;
-using BibliotecaImpressaoEscPos.PortFactory.Enums;
+﻿using EscPosPrinter.PortFactory;
+using EscPosPrinter.PortFactory.Enums;
 using System;
 using System.Drawing;
 using System.IO;
 using System.Text;
 using System.Threading;
 
-namespace BibliotecaImpressaoEscPos
+namespace EscPosPrinter
 {
     public class Printer : PortWriter, IPrinter
     {

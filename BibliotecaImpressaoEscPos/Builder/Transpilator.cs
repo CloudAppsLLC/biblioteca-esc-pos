@@ -2,18 +2,18 @@
 using System.Text.RegularExpressions;
 using System.Xml.XPath;
 
-namespace BibliotecaImpressaoEscPos.Builder
+namespace EscPosPrinter.Builder
 {
-    public static class Interpreter
+    public static class Transpilator
     {
         private static IList<Command> commands;
 
-        static Interpreter()
+        static Transpilator()
         {
             commands = new List<Command>();
         }
 
-        public static IList<Command> InterpreteElements(XPathNodeIterator elements, string super = null)
+        public static IList<Command> TranspileElements(XPathNodeIterator elements, string super = null)
         {
             foreach (XPathNavigator child in elements)
             {
@@ -27,7 +27,7 @@ namespace BibliotecaImpressaoEscPos.Builder
                 {
                     if (!string.IsNullOrEmpty(child.Value))
                     {
-                        InterpreteElements(child.SelectChildren(XPathNodeType.All), child.Name);
+                        TranspileElements(child.SelectChildren(XPathNodeType.All), child.Name);
                     }
                     else
                     {

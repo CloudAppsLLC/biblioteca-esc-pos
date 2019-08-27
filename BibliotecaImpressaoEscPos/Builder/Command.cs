@@ -1,4 +1,4 @@
-﻿namespace BibliotecaImpressaoEscPos.Builder
+﻿namespace EscPosPrinter.Builder
 {
     public class Command
     {

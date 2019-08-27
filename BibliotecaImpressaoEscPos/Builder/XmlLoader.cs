@@ -2,7 +2,7 @@
 using System.Text;
 using System.Xml.XPath;
 
-namespace BibliotecaImpressaoEscPos.Builder
+namespace EscPosPrinter.Builder
 {
     public class XmlLoader
     {

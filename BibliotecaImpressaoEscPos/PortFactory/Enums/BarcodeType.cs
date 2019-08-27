@@ -1,4 +1,4 @@
-﻿namespace BibliotecaImpressaoEscPos.PortFactory.Enums
+﻿namespace EscPosPrinter.PortFactory.Enums
 {
     public enum BarcodeType
     {

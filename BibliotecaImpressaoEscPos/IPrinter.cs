@@ -1,8 +1,8 @@
-﻿using BibliotecaImpressaoEscPos.PortFactory.Enums;
+﻿using EscPosPrinter.PortFactory.Enums;
 using System;
 using System.Drawing;
 
-namespace BibliotecaImpressaoEscPos
+namespace EscPosPrinter
 {
     public interface IPrinter : IDisposable
     {

@@ -3,7 +3,7 @@ using System.IO;
 using System.IO.Ports;
 using System.Text;
 
-namespace BibliotecaImpressaoEscPos.PortFactory
+namespace EscPosPrinter.PortFactory
 {
     public class PortWriter : IDisposable
     {

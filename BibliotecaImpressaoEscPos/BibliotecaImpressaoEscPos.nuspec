@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>EscPosPrinter</id>
+    <version>1.0.0</version>
+    <title>ESC/POS Printer with tag interpreter for text formatation (for Thermal Printer).</title>
+    <authors>Luiz de Queiroz</authors>
+    <owners>Luiz de Queiroz</owners>
+    <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
+    <projectUrl>https://github.com/luizdequeiroz/biblioteca-esc-pos</projectUrl>
+    <!-- <iconUrl></iconUrl> -->
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Biblioteca para impressão de texto em impressoras não fiscais via comandos ESC/POS.</description>
+    <!-- <releaseNotes></releaseNotes> -->
+    <copyright>Copyright 2019</copyright>
+    <tags>csharp, esc, pos, escpos, printer, thermalprinter</tags>
+  </metadata>
+</package>

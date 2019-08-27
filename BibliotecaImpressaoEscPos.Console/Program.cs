@@ -1,10 +1,10 @@
-﻿using BibliotecaImpressaoEscPos.Builder;
-using BibliotecaImpressaoEscPos.PortFactory.Enums;
+﻿using EscPosPrinter.Builder;
+using EscPosPrinter.PortFactory.Enums;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 
-namespace BibliotecaImpressaoEscPos.Console
+namespace EscPosPrinter.Console
 {
     class Program
     {
@@ -19,7 +19,7 @@ namespace BibliotecaImpressaoEscPos.Console
                                 <l/>
                                 <ad>
                                     a direita
-                                <sl>30</sl>
+                                    <sl>30</sl>
                                     <b>negrito e a direita</b>
                                 </ad>
                                 <sl>30</sl>
@@ -44,7 +44,7 @@ namespace BibliotecaImpressaoEscPos.Console
             try
             {
                 var elements = XmlLoader.Load(content);
-                var commands = Interpreter.InterpreteElements(elements);
+                var commands = Transpilator.TranspileElements(elements);
 
                 using (IPrinter printer = new Printer("COM4", 2, 180, 2))
                 {

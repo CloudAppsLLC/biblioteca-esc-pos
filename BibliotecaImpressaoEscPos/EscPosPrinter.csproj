@@ -4,17 +4,20 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{160FA045-8F54-47F6-A731-1D7D67D6A625}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{B4C6B10B-DEE3-4604-BDAC-C7D47D122E99}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BibliotecaImpressaoEscPos.Console</RootNamespace>
-    <AssemblyName>BibliotecaImpressaoEscPos.Console</AssemblyName>
+    <RootNamespace>EscPosPrinter</RootNamespace>
+    <AssemblyName>EscPosPrinter</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
+    <PackageId>BibliotecaImpressaoEscPos</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Luiz de Queiroz</Authors>
+    <Company>Luiz de Queiroz</Company>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,9 +26,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>bin\Debug\EscPosPrinter.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -58,9 +61,6 @@
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
-    </Reference>
-    <Reference Include="PrinterUtility">
-      <HintPath>..\..\..\Users\1007787\Documents\PrinterUtility.dll</HintPath>
     </Reference>
     <Reference Include="SharpSnmpLib, Version=10.0.9.0, Culture=neutral, PublicKeyToken=4c00852d3788e005, processorArchitecture=MSIL">
       <HintPath>..\packages\Lextm.SharpSnmpLib.10.0.9\lib\net452\SharpSnmpLib.dll</HintPath>
@@ -98,18 +98,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
+    <Compile Include="Builder\Command.cs" />
+    <Compile Include="Builder\Transpilator.cs" />
+    <Compile Include="Builder\XmlLoader.cs" />
+    <Compile Include="IPrinter.cs" />
+    <Compile Include="PortFactory\Enums\BarcodeType.cs" />
+    <Compile Include="PortFactory\Enums\PrintingStyle.cs" />
+    <Compile Include="PortFactory\PortWriter.cs" />
+    <Compile Include="Printer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\BibliotecaImpressaoEscPos\BibliotecaImpressaoEscPos.csproj">
-      <Project>{B4C6B10B-DEE3-4604-BDAC-C7D47D122E99}</Project>
-      <Name>BibliotecaImpressaoEscPos</Name>
-    </ProjectReference>
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
