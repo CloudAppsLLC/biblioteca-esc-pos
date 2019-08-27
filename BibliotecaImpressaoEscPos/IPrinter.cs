@@ -1,6 +1,7 @@
 ﻿using EscPosPrinter.PortFactory.Enums;
 using System;
 using System.Drawing;
+using System.Collections.Generic;
 
 namespace EscPosPrinter
 {
@@ -49,5 +50,6 @@ namespace EscPosPrinter
         void WriteToBuffer(string text);
         void Guillotine();
         void SetLetterSpacing(byte letterSpacing);
+        void ExecuteActions(IList<Action> actionsForPrinter);
     }
 }

@@ -5,6 +5,7 @@ using System.Drawing;
 using System.IO;
 using System.Text;
 using System.Threading;
+using System.Collections.Generic;
 
 namespace EscPosPrinter
 {
@@ -19,17 +20,17 @@ namespace EscPosPrinter
 
         public string LocalEncoding { get; set; }
 
-        public Printer(string serialPort, byte maxPrinting, byte heatingTime, byte heatingInterval) : base(serialPort)
+        public Printer(int serialPort, byte maxPrinting, byte heatingTime, byte heatingInterval) : base($"COM{serialPort}")
         {
-            Constructor(serialPort, maxPrinting, heatingTime, heatingInterval);
+            Constructor(maxPrinting, heatingTime, heatingInterval);
         }
 
-        public Printer(string serialPort) : base(serialPort)
+        public Printer(int serialPort) : base($"COM{serialPort}")
         {
-            Constructor(serialPort, MaxPrinting, HeatingTime, HeatingInterval);
+            Constructor(MaxPrinting, HeatingTime, HeatingInterval);
         }
 
-        private void Constructor(string serialPort, byte maxPrinting, byte heatingTime, byte heatingInterval)
+        private void Constructor(byte maxPrinting, byte heatingTime, byte heatingInterval)
         {
             if (base.Initialized)
             {
@@ -597,6 +598,14 @@ namespace EscPosPrinter
             WriteByte(27);
             WriteByte(32);
             WriteByte(letterSpacing);
+        }
+
+        public void ExecuteActions(IList<Action> actionsForPrinter)
+        {
+            foreach(var action in actionsForPrinter)
+            {
+                action.Invoke();
+            }
         }
     }
 }

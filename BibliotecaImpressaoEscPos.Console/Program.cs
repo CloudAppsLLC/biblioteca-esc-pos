@@ -1,5 +1,4 @@
-﻿using EscPosPrinter.Builder;
-using EscPosPrinter.PortFactory.Enums;
+﻿using EscPosPrinter.PortFactory.Enums;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -10,123 +9,41 @@ namespace EscPosPrinter.Console
     {
         static void Main(string[] args)
         {
-            var content = @"
-                                <ce>centralizado</ce>
-                                <sl>30</sl>
-                                <l></l>
-                                normal
-                                <sl>30</sl>
-                                <l/>
-                                <ad>
-                                    a direita
-                                    <sl>30</sl>
-                                    <b>negrito e a direita</b>
-                                </ad>
-                                <sl>30</sl>
-                                <b>apenas negrito</b>
-                                <sl>30</sl>
-                                <c>condensado</c>
-                                <sl>30</sl>
-                                <ad>normal a direita</ad>
-                                <sl>30</sl>
-                                <sl>30</sl>
-                                <sl>30</sl>
-                                <gui/>
-                           ";
+            TesteInterpretador();
 
-            TesteInterpretador(content);
-
-            //TestePrinter();
+            TestePrinter();
+            System.Console.ReadKey();
         }
 
-        static void TesteInterpretador(string content)
+        static void TesteInterpretador()
         {
             try
             {
-                var elements = XmlLoader.Load(content);
-                var commands = Transpilator.TranspileElements(elements);
-
-                using (IPrinter printer = new Printer("COM4", 2, 180, 2))
+                using (IPrinter printer = new Printer(4, 2, 180, 2))
                 {
-                    printer.WakeUp();
-                    printer.Reset();
-                    printer.SetLineSpacing(2);
-                    printer.SetLetterSpacing(2);
-                    printer.SetMarginLeft(20); // if elgin
-                    
-                    foreach (var command in commands)
-                    {
-                        if (!string.IsNullOrEmpty(command.Tag))
-                        {
-                            switch (command.Tag)
-                            {
-                                case "ad":
-                                    printer.SetAlignRight();
-                                    printer.WriteLine(command.Value);
-                                    break;
-                                case "/ad":
-                                    printer.SetAlignLeft();
-                                    break;
+                    var xml = @"<ce>centralizado</ce>
+                            <l></l>
+                            normal
+                            <ad>
+                                a direita
+                                <sl>30</sl>
+                                <b>negrito e a direita</b>
+                            </ad>
+                            <b>apenas negrito</b>
+                            <c>condensado</c>
+                            <ad>normal a direita</ad>
+                            <sl>30</sl>
+                            <gui/>";
 
-                                case "b":
-                                    printer.BoldOn();
-                                    printer.WriteLine(command.Value);
-                                    break;
-                                case "/b":
-                                    printer.BoldOff();
-                                    break;
+                    var actionsForPrinter = new Interpreter(printer).GenerateActionsForPrinter(xml);
 
-                                case "c":
-                                    printer.SetLineSpacing(0);
-                                    printer.SetLetterSpacing(0);
-                                    printer.WriteLine(command.Value);
-                                    break;
-                                case "/c":
-                                    printer.SetLineSpacing(2);
-                                    printer.SetLetterSpacing(2);
-                                    break;
-
-                                case "ce":
-                                    printer.SetAlignCenter();
-                                    printer.WriteLine(command.Value);
-                                    break;
-                                case "/ce":
-                                    printer.SetAlignLeft();
-                                    break;
-
-                                case "l":
-                                    printer.LineFeed();
-                                    break;
-                                case "/l":
-                                    break;
-
-                                case "sl":
-                                    printer.LineFeed(byte.Parse(command.Value));
-                                    break;
-                                case "/sl":
-                                    break;
-
-                                case "gui":
-                                    printer.Guillotine();
-                                    break;
-                                case "/gui":
-                                    break;
-
-                                default:
-                                    printer.WriteLine($"<{command.Tag}>{command.Value}</{command.Tag}>");
-                                    break;
-                            }
-                        }
-                        else
-                        {
-                            printer.WriteLine(command.Value);
-                        }
-                    }
+                    if (actionsForPrinter != null)
+                        printer.ExecuteActions(actionsForPrinter);
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                System.Console.ReadKey();
+                System.Console.WriteLine("{0} => {1}", ex.Message, ex.StackTrace);
             }
         }
 
@@ -134,7 +51,7 @@ namespace EscPosPrinter.Console
         {
             try
             {
-                using (IPrinter printer = new Printer("COM4", 2, 180, 2))
+                using (IPrinter printer = new Printer(4, 2, 180, 2))
                 {
                     printer.WakeUp();
                     System.Console.WriteLine(printer.ToString());
@@ -173,7 +90,6 @@ namespace EscPosPrinter.Console
             {
                 System.Console.WriteLine("{0} => {1}", ex.Message, ex.StackTrace);
             }
-            System.Console.ReadKey();
         }
 
         static void TestReceipt(IPrinter printer)
