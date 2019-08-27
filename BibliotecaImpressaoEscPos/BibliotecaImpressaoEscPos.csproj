@@ -93,6 +93,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Builder\Command.cs" />
     <Compile Include="Builder\Interpreter.cs" />
     <Compile Include="Builder\XmlLoader.cs" />
     <Compile Include="IPrinter.cs" />

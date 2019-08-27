@@ -3,7 +3,6 @@ using BibliotecaImpressaoEscPos.PortFactory.Enums;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Text.RegularExpressions;
 
 namespace BibliotecaImpressaoEscPos.Console
 {
@@ -13,18 +12,29 @@ namespace BibliotecaImpressaoEscPos.Console
         {
             var content = @"
                                 <ce>centralizado</ce>
+                                <sl>30</sl>
+                                <l></l>
                                 normal
+                                <sl>30</sl>
+                                <l/>
                                 <ad>
                                     a direita
+                                <sl>30</sl>
                                     <b>negrito e a direita</b>
                                 </ad>
+                                <sl>30</sl>
                                 <b>apenas negrito</b>
+                                <sl>30</sl>
+                                <c>condensado</c>
+                                <sl>30</sl>
                                 <ad>normal a direita</ad>
+                                <sl>30</sl>
+                                <sl>30</sl>
+                                <sl>30</sl>
                                 <gui/>
                            ";
 
-            var cleaned = string.Join("", Regex.Split(content, @"(?:\r\n|\n|\r| )"));
-            TesteInterpretador(cleaned);
+            TesteInterpretador(content);
 
             //TestePrinter();
         }
@@ -40,55 +50,76 @@ namespace BibliotecaImpressaoEscPos.Console
                 {
                     printer.WakeUp();
                     printer.Reset();
-                    //printer.SetMarginLeft(20);
-
+                    printer.SetLineSpacing(2);
+                    printer.SetLetterSpacing(2);
+                    printer.SetMarginLeft(20); // if elgin
+                    
                     foreach (var command in commands)
                     {
-                        if (!string.IsNullOrEmpty(command))
+                        if (!string.IsNullOrEmpty(command.Tag))
                         {
-                            byte underlineHeight = 0;
-                            switch (command)
+                            switch (command.Tag)
                             {
-                                case "<ad>":
+                                case "ad":
                                     printer.SetAlignRight();
+                                    printer.WriteLine(command.Value);
                                     break;
-                                case "</ad>":
+                                case "/ad":
                                     printer.SetAlignLeft();
                                     break;
 
-                                case "<b>":
+                                case "b":
                                     printer.BoldOn();
+                                    printer.WriteLine(command.Value);
                                     break;
-                                case "</b>":
+                                case "/b":
                                     printer.BoldOff();
                                     break;
 
-                                case "<c>":
+                                case "c":
                                     printer.SetLineSpacing(0);
                                     printer.SetLetterSpacing(0);
+                                    printer.WriteLine(command.Value);
                                     break;
-                                case "</c>":
-                                    printer.SetLineSpacing(10);
-                                    printer.SetLetterSpacing(10);
+                                case "/c":
+                                    printer.SetLineSpacing(2);
+                                    printer.SetLetterSpacing(2);
                                     break;
 
-                                case "<ce>":
+                                case "ce":
                                     printer.SetAlignCenter();
+                                    printer.WriteLine(command.Value);
                                     break;
-                                case "</ce>":
+                                case "/ce":
                                     printer.SetAlignLeft();
                                     break;
 
-                                case "<gui>":
+                                case "l":
+                                    printer.LineFeed();
+                                    break;
+                                case "/l":
+                                    break;
+
+                                case "sl":
+                                    printer.LineFeed(byte.Parse(command.Value));
+                                    break;
+                                case "/sl":
+                                    break;
+
+                                case "gui":
                                     printer.Guillotine();
                                     break;
-                                case "</gui>":
+                                case "/gui":
                                     break;
 
                                 default:
-                                    printer.WriteLine(command);
+                                    printer.WriteLine($"<{command.Tag}>{command.Value}</{command.Tag}>");
                                     break;
                             }
+                        }
+                        else
+                        {
+                            printer.WriteLine(command.Value);
                         }
                     }
                 }
