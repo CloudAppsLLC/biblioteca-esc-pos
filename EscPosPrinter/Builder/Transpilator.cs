@@ -4,7 +4,7 @@ using System.Xml.XPath;
 
 namespace EscPosPrinter.Builder
 {
-    public static class Transpilator
+    public class Transpilator
     {
         public static IList<Command> TranspileElements(XPathNodeIterator elements, string super = null)
         {
@@ -21,7 +21,7 @@ namespace EscPosPrinter.Builder
                 {
                     if (!string.IsNullOrEmpty(child.Value))
                     {
-                        TranspileElements(child.SelectChildren(XPathNodeType.All), child.Name);
+                        commands.AddRange(TranspileElements(child.SelectChildren(XPathNodeType.All), child.Name));
                     }
                     else
                     {
