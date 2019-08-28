@@ -20,34 +20,64 @@ namespace EscPosPrinter
 
         public string LocalEncoding { get; set; }
 
-        public Printer(int serialPort, byte maxPrinting, byte heatingTime, byte heatingInterval) : base($"COM{serialPort}")
-        {
-            Constructor(maxPrinting, heatingTime, heatingInterval);
-        }
-
         public Printer(int serialPort) : base($"COM{serialPort}")
         {
             Constructor(MaxPrinting, HeatingTime, HeatingInterval);
         }
 
-        private void Constructor(byte maxPrinting, byte heatingTime, byte heatingInterval)
+        public Printer(int serialPort, byte maxPrinting, byte heatingTime, byte heatingInterval) : base($"COM{serialPort}")
         {
-            if (base.Initialized)
+            Constructor(maxPrinting, heatingTime, heatingInterval);
+        }
+
+        public Printer(int serialPort, int timeout) : base($"COM{serialPort}")
+        {
+            Constructor(MaxPrinting, HeatingTime, HeatingInterval, timeout);
+        }
+
+        public Printer(int serialPort, byte maxPrinting, byte heatingTime, byte heatingInterval, int timeout) : base($"COM{serialPort}")
+        {
+            Constructor(maxPrinting, heatingTime, heatingInterval, timeout);
+        }
+
+        private void Constructor(byte maxPrinting, byte heatingTime, byte heatingInterval, int timeout = 0)
+        {
+            Action initialize = () =>
             {
-                LocalEncoding = "ibm850";
+                try
+                {
+                    if (base.Initialized)
+                    {
+                        LocalEncoding = "ibm850";
 
-                MaxPrinting = maxPrinting;
-                HeatingTime = heatingTime;
-                HeatingInterval = heatingInterval;
+                        MaxPrinting = maxPrinting;
+                        HeatingTime = heatingTime;
+                        HeatingInterval = heatingInterval;
 
-                Reset();
+                        Reset();
 
-                SetPrintingParameters(maxPrinting, heatingTime, heatingInterval);
-                SendEncoding(LocalEncoding);
+                        SetPrintingParameters(maxPrinting, heatingTime, heatingInterval);
+                        SendEncoding(LocalEncoding);
+                    }
+                    else
+                    {
+                        throw base.InternalException;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    if (timeout > 0) Constructor(maxPrinting, heatingTime, heatingInterval, timeout);
+                    else throw ex;
+                }
+            };
+
+            if (timeout > 0)
+            {
+                Builder.Timedout.CallWithTimeout(initialize, timeout);
             }
             else
             {
-                throw base.InternalException;
+                initialize.Invoke();
             }
         }
 
@@ -602,7 +632,7 @@ namespace EscPosPrinter
 
         public void ExecuteActions(IList<Action> actionsForPrinter)
         {
-            foreach(var action in actionsForPrinter)
+            foreach (var action in actionsForPrinter)
             {
                 action.Invoke();
             }

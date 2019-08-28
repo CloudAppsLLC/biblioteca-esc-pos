@@ -27,7 +27,7 @@ namespace EscPosPrinter.Console
         {
             try
             {
-                using (IPrinter printer = new Printer(port))
+                using (IPrinter printer = new Printer(port, 5000))
                 {
                     var xml = @"<ce>centralizado</ce>
                                 <l></l>
@@ -54,9 +54,7 @@ namespace EscPosPrinter.Console
             }
             catch (Exception ex)
             {
-                tryCount++;
-                System.Console.WriteLine($"Tentativa: {tryCount}");
-                TesteInterpretador(port);
+                System.Console.WriteLine($"{ex.Message} => {ex.StackTrace}");
             }
         }
 
