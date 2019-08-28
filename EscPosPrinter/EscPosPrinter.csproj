@@ -108,6 +108,7 @@
     <Compile Include="Builder\Command.cs" />
     <Compile Include="Builder\Transpilator.cs" />
     <Compile Include="Builder\XmlLoader.cs" />
+    <Compile Include="IInterpreter.cs" />
     <Compile Include="Interpreter.cs" />
     <Compile Include="IPrinter.cs" />
     <Compile Include="PortFactory\Enums\BarcodeType.cs" />

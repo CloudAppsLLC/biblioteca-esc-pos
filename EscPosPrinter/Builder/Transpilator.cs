@@ -6,15 +6,9 @@ namespace EscPosPrinter.Builder
 {
     public static class Transpilator
     {
-        private static IList<Command> commands;
-
-        static Transpilator()
-        {
-            commands = new List<Command>();
-        }
-
         public static IList<Command> TranspileElements(XPathNodeIterator elements, string super = null)
         {
+            var commands = new List<Command>();
             foreach (XPathNavigator child in elements)
             {
                 if (string.IsNullOrEmpty(child.Name))

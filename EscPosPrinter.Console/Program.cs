@@ -1,8 +1,8 @@
-﻿using EscPosPrinter.PortFactory.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using EscPosPrinter.PortFactory.Enums;
 
 namespace EscPosPrinter.Console
 {
@@ -14,7 +14,7 @@ namespace EscPosPrinter.Console
         static void Main(string[] args)
         {
             watch.Start();
-            TesteInterpretador(3);
+            TesteInterpretador(4);
             watch.Stop();
             System.Console.WriteLine($"Tempo decorrido: {watch.ElapsedMilliseconds}ms");
             System.Console.WriteLine();
@@ -30,18 +30,18 @@ namespace EscPosPrinter.Console
                 using (IPrinter printer = new Printer(port))
                 {
                     var xml = @"<ce>centralizado</ce>
-                            <l></l>
-                            normal
-                            <ad>
-                                a direita
+                                <l></l>
+                                normal
+                                <ad>
+                                    a direita
+                                    <sl>30</sl>
+                                    <b>negrito e a direita</b>
+                                </ad>
+                                <b>apenas negrito</b>
+                                <c>condensado</c>
+                                <ad>normal a direita</ad>
                                 <sl>30</sl>
-                                <b>negrito e a direita</b>
-                            </ad>
-                            <b>apenas negrito</b>
-                            <c>condensado</c>
-                            <ad>normal a direita</ad>
-                            <sl>30</sl>
-                            <gui/>";
+                                <gui/>";
 
                     var actionsForPrinter = new Interpreter(printer).GenerateActionsForPrinter(xml);
 

@@ -4,9 +4,9 @@ using System.Collections.Generic;
 
 namespace EscPosPrinter
 {
-    public class Interpreter
+    public class Interpreter : IInterpreter
     {
-        private readonly IPrinter Printer;
+        private IPrinter Printer;
 
         public Interpreter(IPrinter printer)
         {
@@ -20,7 +20,6 @@ namespace EscPosPrinter
             {
                 var elements = XmlLoader.Load(text);
                 var commands = Transpilator.TranspileElements(elements);
-
 
                 actions.Add(() => Printer.WakeUp());
                 actions.Add(() => Printer.Reset());
