@@ -51,5 +51,8 @@ namespace EscPosPrinter
         void WriteToBuffer(string text);
         void Guillotine();
         void SetLetterSpacing(byte letterSpacing);
+        void PrintQrCode(string data);
+            
+    
     }
 }

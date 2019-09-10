@@ -13,13 +13,13 @@ namespace EscPosPrinter.Console
 
         static void Main(string[] args)
         {
-            watch.Start();
-            TesteInterpretador(4);
-            watch.Stop();
-            System.Console.WriteLine($"Tempo decorrido: {watch.ElapsedMilliseconds}ms");
-            System.Console.WriteLine();
+            //watch.Start();
+            //TesteInterpretador(4);
+            //watch.Stop();
+            //System.Console.WriteLine($"Tempo decorrido: {watch.ElapsedMilliseconds}ms");
+            //System.Console.WriteLine(); 
 
-            //TestePrinter();
+            TestePrinter();
             System.Console.ReadKey();
         }
 
@@ -62,17 +62,20 @@ namespace EscPosPrinter.Console
         {
             try
             {
-                using (IPrinter printer = new Printer(4, 2, 180, 2))
+                using (IPrinter printer = new Printer(8, 2, 180, 2, 10000))
                 {
                     printer.WakeUp();
                     System.Console.WriteLine(printer.ToString());
 
                     TestReceipt(printer);
+                    //SetDadosLoja(printer);
 
                     printer.SetBarcodeLeftSpace(25);
                     TestBarcode(printer);
 
                     //TestImage(printer);
+
+                    TestQRcode(printer);
 
                     printer.WriteLineSleepTimeMs = 200;
                     printer.WriteLine("Default style...");
@@ -175,8 +178,8 @@ namespace EscPosPrinter.Console
 
         static void TestBarcode(IPrinter printer)
         {
-            var myType = BarcodeType.ean13;
-            string myData = "3350030103392";
+            var myType = BarcodeType.code128;
+            string myData = "23190514200166000166599000100880000147661654";
             printer.WriteLine(myType.ToString() + ", data: " + myData);
             printer.SetLargeBarcode(true);
             printer.LineFeed();
@@ -186,14 +189,26 @@ namespace EscPosPrinter.Console
             printer.PrintBarcode(myType, myData);
         }
 
+        static void TestQRcode(IPrinter printer)
+        {
+            printer.WriteLine("Test QRcode");
+            printer.SetAlignCenter();
+            printer.PrintQrCode(@"35150909165024000175590000193130072726117830|20150924062259|50.00||hdMEPiER6rjZKyKA+4+voi1nncxsAGFbYsEEqnh04SbvUEI/haUF4GUBPxT6Q2Uhf9f8QYgxiwxWo3GxRrvj4WnNeTYgAqUAYmOANPItNkOw0CppmZ4R8i1ZOlnftVhksCM0zrl4RiKgoazbN44hUu2nQf0W/JLvFXzXu12JlcSThNtmyJ6m9WBsMc/sf9BE14HDoXMyKRIQYt5TkEjilHH9Ffa0saRyUIp+Fji89/Moq8YCCFC+qC44XGxsvNCeeHUNOc1LgPP0DbU1miwpVnrBlEl87RU8Iy0r8fN/fNhbcStkwfTEvhYvZz42nEKHrmGTpGZYkHuTFCNZPq7aCA==");
+            //printer.PrintQrCode(@"3350030103392");
+            printer.SetAlignLeft();
+            printer.LineFeed();
+            printer.WriteLine("End test QRcode");
+
+        }
+
         static void TestImage(IPrinter printer)
         {
             printer.WriteLine("Test image:");
-            var img = new Bitmap("../../../mono-logo.png");
+            var img = new Bitmap(@"C:\Users\90004444\Pictures\teste.bmp");
             printer.LineFeed();
             printer.PrintImage(img);
             printer.LineFeed();
             printer.WriteLine("Image OK");
         }
     }
-}
+} 

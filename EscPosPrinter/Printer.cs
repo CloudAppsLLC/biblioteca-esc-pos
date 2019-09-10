@@ -565,7 +565,7 @@ namespace EscPosPrinter
             WriteByte(61);
             WriteByte(1);
         }
-
+         
         public override string ToString()
         {
             return string.Format("Printer:\n\tSerialPort={0},\n\tMaxPrinting={1}," +
@@ -636,6 +636,35 @@ namespace EscPosPrinter
             {
                 action.Invoke();
             }
+        }
+
+        public void PrintQrCode(string data)
+        {
+            string QRdata = data;
+            int store_len = QRdata.Length + 3; // 414
+            byte store_pL = (byte)(store_len % 256); // 158
+            byte store_pH = (byte)(store_len / 256); // 1            
+
+            byte[] modelQR = { 29, 40, 107, 4, 0, 49, 65, 50, 0 }; //FUNCTION 181
+            byte[] sizeQR = { 29, 40, 107, 3, 0, 49, 67, 5 }; //FUNCTION 167
+            byte[] errorQR = { 29, 40, 107, 3, 0, 49, 69, 48 }; //FUNCTION 169
+            byte[] storeQR = { 29, 40, 107, store_pL, store_pH, 49, 80, 48 };  //FUNCTION 180
+            byte[] printQR = { 29, 40, 107, 3, 0, 49, 81, 48 }; //FUNCTION 181
+
+            byte[] originalBytes;
+             //byte[] outputBytes;
+
+            originalBytes = Encoding.UTF8.GetBytes(QRdata.ToUpper());
+            //outputBytes = Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(LocalEncoding), originalBytes);
+
+            Write(modelQR,0, modelQR.Length);
+            Write(sizeQR, 0, sizeQR.Length);
+            Write(errorQR, 0, errorQR.Length);
+            Write(storeQR, 0, storeQR.Length);
+            Write(originalBytes, 0, originalBytes.Length);
+            Write(printQR, 0, printQR.Length);
+          //  Write(originalBytes, 0, originalBytes.Length);
+            
         }
     }
 }
