@@ -6,6 +6,8 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Collections;
 
 namespace EscPosPrinter
 {
@@ -477,6 +479,13 @@ namespace EscPosPrinter
             }
         }
 
+        public void SetHeigthBarcode(int heigth)
+        {
+            WriteByte(29);
+            WriteByte(104);
+            WriteByte(45);
+        }
+
         public void SetBarcodeLeftSpace(byte spacingDots)
         {
             WriteByte(29);
@@ -484,64 +493,64 @@ namespace EscPosPrinter
             WriteByte(spacingDots);
         }
 
-        public void PrintImage(string fileName)
-        {
+        //public void PrintImage(string fileName)
+        //{
 
-            if (!File.Exists(fileName))
-            {
-                throw (new Exception("File does not exist."));
-            }
+        //    if (!File.Exists(fileName))
+        //    {
+        //        throw (new Exception("File does not exist."));
+        //    }
 
-            PrintImage(new Bitmap(fileName));
+        //    PrintImage(new Bitmap(fileName));
 
-        }
+        //}
 
-        public void PrintImage(Bitmap image)
-        {
-            int width = image.Width;
-            int height = image.Height;
+        //public void PrintImage(Bitmap image)
+        //{
+        //    int width = image.Width;
+        //    int height = image.Height;
 
-            byte[,] imgArray = new byte[width, height];
+        //    byte[,] imgArray = new byte[width, height];
 
-            if (width != 384 || height > 65635)
-            {
-                throw (new Exception("Image width must be 384px, height cannot exceed 65635px."));
-            }
+        //    if (width != 384 || height > 65635)
+        //    {
+        //        throw (new Exception("Image width must be 384px, height cannot exceed 65635px."));
+        //    }
 
-            // Processing image data	
-            for (int y = 0; y < image.Height; y++)
-            {
-                for (int x = 0; x < (image.Width / 8); x++)
-                {
-                    imgArray[x, y] = 0;
-                    for (byte n = 0; n < 8; n++)
-                    {
-                        Color pixel = image.GetPixel(x * 8 + n, y);
-                        if (pixel.GetBrightness() < 0.5)
-                        {
-                            imgArray[x, y] += (byte)(1 << n);
-                        }
-                    }
-                }
-            }
+        //    // Processing image data	
+        //    for (int y = 0; y < image.Height; y++)
+        //    {
+        //        for (int x = 0; x < (image.Width / 8); x++)
+        //        {
+        //            imgArray[x, y] = 0;
+        //            for (byte n = 0; n < 8; n++)
+        //            {
+        //                Color pixel = image.GetPixel(x * 8 + n, y);
+        //                if (pixel.GetBrightness() < 0.5)
+        //                {
+        //                    imgArray[x, y] += (byte)(1 << n);
+        //                }
+        //            }
+        //        }
+        //    }
 
-            // Print LSB first bitmap
-            WriteByte(18);
-            WriteByte(118);
+        //    // Print LSB first bitmap
+        //    WriteByte(18);
+        //    WriteByte(118);
 
-            WriteByte((byte)(height & 255));   // height LSB
-            WriteByte((byte)(height >> 8));    // height MSB
+        //    WriteByte((byte)(height & 255));   // height LSB
+        //    WriteByte((byte)(height >> 8));    // height MSB
 
 
-            for (int y = 0; y < height; y++)
-            {
-                System.Threading.Thread.Sleep(PictureLineSleepTimeMs);
-                for (int x = 0; x < (width / 8); x++)
-                {
-                    WriteByte(imgArray[x, y]);
-                }
-            }
-        }
+        //    for (int y = 0; y < height; y++)
+        //    {
+        //        System.Threading.Thread.Sleep(PictureLineSleepTimeMs);
+        //        for (int x = 0; x < (width / 8); x++)
+        //        {
+        //            WriteByte(imgArray[x, y]);
+        //        }
+        //    }
+        //}
 
         public void SetPrintingParameters(byte maxPrinting, byte heatingTime, byte heatingInterval)
         {
@@ -565,7 +574,7 @@ namespace EscPosPrinter
             WriteByte(61);
             WriteByte(1);
         }
-         
+
         public override string ToString()
         {
             return string.Format("Printer:\n\tSerialPort={0},\n\tMaxPrinting={1}," +
@@ -652,19 +661,145 @@ namespace EscPosPrinter
             byte[] printQR = { 29, 40, 107, 3, 0, 49, 81, 48 }; //FUNCTION 181
 
             byte[] originalBytes;
-             //byte[] outputBytes;
 
             originalBytes = Encoding.UTF8.GetBytes(QRdata.ToUpper());
-            //outputBytes = Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(LocalEncoding), originalBytes);
 
-            Write(modelQR,0, modelQR.Length);
+            Write(modelQR, 0, modelQR.Length);
             Write(sizeQR, 0, sizeQR.Length);
             Write(errorQR, 0, errorQR.Length);
             Write(storeQR, 0, storeQR.Length);
             Write(originalBytes, 0, originalBytes.Length);
             Write(printQR, 0, printQR.Length);
-          //  Write(originalBytes, 0, originalBytes.Length);
-            
+
         }
+
+        public void PrintImage(string fileName, int maxWidth = 150)
+        {
+            if (!File.Exists(fileName))
+            {
+                throw (new Exception("File does not exist."));
+            }
+
+            BitmapData data = GetBitmapData(fileName, maxWidth);
+            BitArray dots = data.Dots;
+            byte[] width = BitConverter.GetBytes(data.Width);
+
+            int offset = 0;
+            MemoryStream stream = new MemoryStream();
+            BinaryWriter bw = new BinaryWriter(stream);
+
+            bw.Write((char)27);
+            bw.Write('@');
+
+            bw.Write((char)27);
+            bw.Write('3');
+            bw.Write((byte)24);
+
+            while (offset < data.Height)
+            {
+                bw.Write((char)27);
+                bw.Write('*');         // bit-image mode
+                bw.Write((byte)33);    // 24-dot double-density
+                bw.Write(width[0]);  // width low byte
+                bw.Write(width[1]);  // width high byte
+
+                for (int x = 0; x < data.Width; ++x)
+                {
+                    for (int k = 0; k < 3; ++k)
+                    {
+                        byte slice = 0;
+                        for (int b = 0; b < 8; ++b)
+                        {
+                            int y = (((offset / 8) + k) * 8) + b;
+                            // Calculate the location of the pixel we want in the bit array.
+                            // It'll be at (y * width) + x.
+                            int i = (y * data.Width) + x;
+
+                            // If the image is shorter than 24 dots, pad with zero.
+                            bool v = false;
+                            if (i < dots.Length)
+                            {
+                                v = dots[i];
+                            }
+                            slice |= (byte)((v ? 1 : 0) << (7 - b));
+                        }
+
+                        bw.Write(slice);
+                    }
+                }
+                offset += 24;
+                bw.Write((char)0x0A);
+            }
+            // Restore the line spacing to the default of 30 dots.
+            bw.Write((char)27);
+            bw.Write('3');
+            bw.Write((byte)30);
+
+            bw.Flush();
+            byte[] bytes = stream.ToArray();
+            Write(bytes, 0, bytes.Length);
+        }
+
+        public BitmapData GetBitmapData(string bmpFileName, int xmultiplier = 150)
+        {
+            using (var bitmap = (Bitmap)Bitmap.FromFile(bmpFileName))
+            {
+                var threshold = 127;
+                var index = 0;
+                double multiplier = xmultiplier; // this depends on your printer model. for Beiyang you should use 1000
+                double scale = (double)(multiplier / (double)bitmap.Width);
+                int xheight = (int)(bitmap.Height * scale);
+                int xwidth = (int)(bitmap.Width * scale);
+                var dimensions = xwidth * xheight;
+                var dots = new BitArray(dimensions);
+
+                for (var y = 0; y < xheight; y++)
+                {
+                    for (var x = 0; x < xwidth; x++)
+                    {
+                        var _x = (int)(x / scale);
+                        var _y = (int)(y / scale);
+                        var color = bitmap.GetPixel(_x, _y);
+                        var luminance = (int)(color.R * 0.3 + color.G * 0.59 + color.B * 0.11);
+                        dots[index] = (luminance < threshold);
+                        index++;
+                    }
+                }
+
+                return new BitmapData()
+                {
+                    Dots = dots,
+                    Height = (int)(bitmap.Height * scale),
+                    Width = (int)(bitmap.Width * scale)
+                };
+            }
+        }
+
+        public class BitmapData
+        {
+            public BitArray Dots
+            {
+                get;
+                set;
+            }
+
+            public int Height
+            {
+                get;
+                set;
+            }
+
+            public int Width
+            {
+                get;
+                set;
+            }
+        }
+
+
+
+
     }
+
+
 }

@@ -42,8 +42,8 @@ namespace EscPosPrinter
         void PrintBarcode(BarcodeType type, string data);
         void SetLargeBarcode(bool large);
         void SetBarcodeLeftSpace(byte spacingDots);
-        void PrintImage(string fileName);
-        void PrintImage(Bitmap image);
+        //void PrintImagePath(string fileName);
+        void PrintImage(string image, int maxWidth = 150);
         void SetPrintingParameters(byte maxPrinting, byte heatingTime, byte heatingInterval);
         void Sleep();
         void WakeUp();
@@ -52,7 +52,6 @@ namespace EscPosPrinter
         void Guillotine();
         void SetLetterSpacing(byte letterSpacing);
         void PrintQrCode(string data);
-            
-    
+        void SetHeigthBarcode(int heigth);
     }
 }

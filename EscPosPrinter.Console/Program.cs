@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using EscPosPrinter.PortFactory.Enums;
+using System.IO;
 
 namespace EscPosPrinter.Console
 {
@@ -73,7 +74,7 @@ namespace EscPosPrinter.Console
                     printer.SetBarcodeLeftSpace(25);
                     TestBarcode(printer);
 
-                    //TestImage(printer);
+                    TestImage(printer);
 
                     TestQRcode(printer);
 
@@ -178,11 +179,13 @@ namespace EscPosPrinter.Console
 
         static void TestBarcode(IPrinter printer)
         {
-            var myType = BarcodeType.code128;
-            string myData = "23190514200166000166599000100880000147661654";
+            var myType = BarcodeType.code93;
+            string myData = "335003010339278907865";
             printer.WriteLine(myType.ToString() + ", data: " + myData);
+            printer.SetHeigthBarcode(10);
             printer.SetLargeBarcode(true);
             printer.LineFeed();
+            printer.SetHeigthBarcode(20);
             printer.PrintBarcode(myType, myData);
             printer.SetLargeBarcode(false);
             printer.LineFeed();
@@ -204,9 +207,8 @@ namespace EscPosPrinter.Console
         static void TestImage(IPrinter printer)
         {
             printer.WriteLine("Test image:");
-            var img = new Bitmap(@"C:\Users\90004444\Pictures\teste.bmp");
             printer.LineFeed();
-            printer.PrintImage(img);
+            printer.PrintImage(@"C:\Users\90004444\Pictures\pmenos.bmp");
             printer.LineFeed();
             printer.WriteLine("Image OK");
         }
