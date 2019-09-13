@@ -371,54 +371,47 @@ namespace EscPosPrinter
                     }
                     break;
                 case BarcodeType.ean13:
-                    if (data.Length == 12 || data.Length == 13)
-                    {
-                        WriteByte(29);
-                        WriteByte(107);
-                        WriteByte(2);
-                        Write(outputBytes, 0, data.Length);
-                        WriteByte(0);
-                    }
+                    WriteByte(29);
+                    WriteByte(107);
+                    WriteByte(2);
+                    Write(outputBytes, 0, data.Length);
+                    WriteByte(0);
                     break;
                 case BarcodeType.ean8:
-                    if (data.Length == 7 || data.Length == 8)
-                    {
-                        WriteByte(29);
-                        WriteByte(107);
-                        WriteByte(3);
-                        Write(outputBytes, 0, data.Length);
-                        WriteByte(0);
-                    }
+
+                    WriteByte(29);
+                    WriteByte(107);
+                    WriteByte(3);
+                    Write(outputBytes, 0, data.Length);
+                    WriteByte(0);
+
                     break;
                 case BarcodeType.code39:
-                    if (data.Length > 1)
-                    {
-                        WriteByte(29);
-                        WriteByte(107);
-                        WriteByte(4);
-                        Write(outputBytes, 0, data.Length);
-                        WriteByte(0);
-                    }
+
+                    WriteByte(29);
+                    WriteByte(107);
+                    WriteByte(4);
+                    Write(outputBytes, 0, data.Length);
+                    WriteByte(0);
+
                     break;
                 case BarcodeType.i25:
-                    if (data.Length > 1 || data.Length % 2 == 0)
-                    {
-                        WriteByte(29);
-                        WriteByte(107);
-                        WriteByte(5);
-                        Write(outputBytes, 0, data.Length);
-                        WriteByte(0);
-                    }
+
+                    WriteByte(29);
+                    WriteByte(107);
+                    WriteByte(5);
+                    Write(outputBytes, 0, data.Length);
+                    WriteByte(0);
+
                     break;
                 case BarcodeType.codebar:
-                    if (data.Length > 1)
-                    {
-                        WriteByte(29);
-                        WriteByte(107);
-                        WriteByte(6);
-                        Write(outputBytes, 0, data.Length);
-                        WriteByte(0);
-                    }
+
+                    WriteByte(29);
+                    WriteByte(107);
+                    WriteByte(6);
+                    Write(outputBytes, 0, data.Length);
+                    WriteByte(0);
+
                     break;
                 case BarcodeType.code93: //todo: overload PrintBarcode method with a byte array parameter
                     if (data.Length > 1)
@@ -430,16 +423,43 @@ namespace EscPosPrinter
                         WriteByte(0);
                     }
                     break;
-                case BarcodeType.code128: //todo: overload PrintBarcode method with a byte array parameter
+                    //FUNCIONANDO PARA ELGIN I9
+                /*case BarcodeType.code128: //todo: overload PrintBarcode method with a byte array parameter
                     if (data.Length > 1)
                     {
                         WriteByte(29);
                         WriteByte(107);
-                        WriteByte(8); //todo: use format 2 (init string : 29,107,73) (0x00 can be a value, too)
-                        Write(outputBytes, 0, data.Length);
+
+                        WriteByte(73); //todo: use format 2 (init string : 29,107,73) (0x00 can be a value, too
+                        WriteByte((byte)(originalBytes.Length + 2)); //length
+
+                        WriteByte(123); // {
+                        WriteByte(65); // A
+
+                        Write(originalBytes, 0, originalBytes.Length);
                         WriteByte(0);
                     }
+                    break;*/
+
+                case BarcodeType.code128: //todo: overload PrintBarcode method with a byte array parameter
+  
+                        WriteByte(29);
+                        WriteByte(107);
+
+                        WriteByte(73); //todo: use format 2 (init string : 29,107,73) (0x00 can be a value, too
+                        WriteByte((byte)(originalBytes.Length)); //length
+
+                       // WriteByte(123); // {
+                       // WriteByte(65); // A
+                      /* foreach(var b in originalBytes)
+                        {
+                            WriteByte(b);
+                        }*/
+
+                       Write(originalBytes, 0, originalBytes.Length);
+                       WriteByte(0);
                     break;
+
                 case BarcodeType.code11:
                     if (data.Length > 1)
                     {
@@ -463,27 +483,18 @@ namespace EscPosPrinter
             }
         }
 
-        public void SetLargeBarcode(bool large)
+        public void SetLargeBarcode(int large)
         {
-            if (large)
-            {
                 WriteByte(29);
                 WriteByte(119);
-                WriteByte(3);
-            }
-            else
-            {
-                WriteByte(29);
-                WriteByte(119);
-                WriteByte(2);
-            }
+                WriteByte((byte)large);
         }
 
         public void SetHeigthBarcode(int heigth)
         {
             WriteByte(29);
             WriteByte(104);
-            WriteByte(45);
+            WriteByte(50);
         }
 
         public void SetBarcodeLeftSpace(byte spacingDots)

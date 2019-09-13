@@ -61,42 +61,43 @@ namespace EscPosPrinter.Console
 
         static void TestePrinter()
         {
+            int x = 0;
             try
             {
-                using (IPrinter printer = new Printer(8, 2, 180, 2, 10000))
+                using (IPrinter printer = new Printer(7, 2, 180, 2))
                 {
                     printer.WakeUp();
                     System.Console.WriteLine(printer.ToString());
 
-                    TestReceipt(printer);
+                    //  TestReceipt(printer);
                     //SetDadosLoja(printer);
-
-                    printer.SetBarcodeLeftSpace(25);
+                    
                     TestBarcode(printer);
 
-                    TestImage(printer);
+                   // TestImage(printer);
 
-                    TestQRcode(printer);
+                   // TestQRcode(printer);
 
-                    printer.WriteLineSleepTimeMs = 200;
-                    printer.WriteLine("Default style...");
-                    printer.WriteLine("PrintingStyle.Bold...", PrintingStyle.Bold);
-                    printer.WriteLine("PrintingStyle.DeleteLine...", PrintingStyle.DeleteLine);
-                    printer.WriteLine("PrintingStyle.DoubleHeight...", PrintingStyle.DoubleHeight);
-                    printer.WriteLine("PrintingStyle.DoubleWidth...", PrintingStyle.DoubleWidth);
-                    printer.WriteLine("PrintingStyle.Reverse...", PrintingStyle.Reverse);
-                    printer.WriteLine("PrintingStyle.Underline...", PrintingStyle.Underline);
-                    printer.WriteLine("PrintingStyle.Updown...", PrintingStyle.Updown);
-                    printer.WriteLine("PrintingStyle.ThickUnderline...", PrintingStyle.ThickUnderline);
-                    printer.SetAlignCenter();
-                    printer.WriteLine("BIG TEXT!", ((byte)PrintingStyle.Bold + (byte)PrintingStyle.DoubleHeight + (byte)PrintingStyle.DoubleWidth));
-                    printer.SetAlignLeft();
-                    printer.WriteLine("Default style again");
+                    //printer.WriteLineSleepTimeMs = 200;
+                    //printer.WriteLine("Default style...");
+                    //printer.WriteLine("PrintingStyle.Bold...", PrintingStyle.Bold);
+                    //printer.WriteLine("PrintingStyle.DeleteLine...", PrintingStyle.DeleteLine);
+                    //printer.WriteLine("PrintingStyle.DoubleHeight...", PrintingStyle.DoubleHeight);
+                    //printer.WriteLine("PrintingStyle.DoubleWidth...", PrintingStyle.DoubleWidth);
+                    //printer.WriteLine("PrintingStyle.Reverse...", PrintingStyle.Reverse);
+                    //printer.WriteLine("PrintingStyle.Underline...", PrintingStyle.Underline);
+                    //printer.WriteLine("PrintingStyle.Updown...", PrintingStyle.Updown);
+                    //printer.WriteLine("PrintingStyle.ThickUnderline...", PrintingStyle.ThickUnderline);
+                    //printer.SetAlignCenter();
+                    //printer.WriteLine("BIG TEXT!", ((byte)PrintingStyle.Bold + (byte)PrintingStyle.DoubleHeight + (byte)PrintingStyle.DoubleWidth));
+                    //printer.SetAlignLeft();
+                    //printer.WriteLine("Default style again");
 
                     printer.LineFeed(3);
                     printer.Guillotine();
 
                     printer.Sleep();
+                    x++;
                 }
                 System.Console.WriteLine("Printer offline!");
 
@@ -104,6 +105,11 @@ namespace EscPosPrinter.Console
             catch (Exception ex)
             {
                 System.Console.WriteLine("{0} => {1}", ex.Message, ex.StackTrace);
+                x = 0;
+            }
+            finally
+            {
+                if(x < 1)  TestePrinter();
             }
         }
 
@@ -179,17 +185,20 @@ namespace EscPosPrinter.Console
 
         static void TestBarcode(IPrinter printer)
         {
-            var myType = BarcodeType.code93;
-            string myData = "335003010339278907865";
-            printer.WriteLine(myType.ToString() + ", data: " + myData);
-            printer.SetHeigthBarcode(10);
-            printer.SetLargeBarcode(true);
-            printer.LineFeed();
-            printer.SetHeigthBarcode(20);
+            var myType = BarcodeType.code128;
+              // string myData = "23190514200166000166599000100";
+             string myData = "2319051420016600016659900010088000014766165";
+            //printer.WriteLine(myType.ToString() + ", data: " + myData);
+            //printer.SetAlignCenter();
+            printer.SetBarcodeLeftSpace(1);
+            printer.SetHeigthBarcode(1);
+            printer.SetLargeBarcode(1);            
+            //printer.SetHeigthBarcode(20);
             printer.PrintBarcode(myType, myData);
-            printer.SetLargeBarcode(false);
-            printer.LineFeed();
-            printer.PrintBarcode(myType, myData);
+            //printer.SetLargeBarcode(false);
+            //printer.LineFeed();
+            //printer.PrintBarcode(myType, myData);
+            //printer.LineFeed(5);
         }
 
         static void TestQRcode(IPrinter printer)

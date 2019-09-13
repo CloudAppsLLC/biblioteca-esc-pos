@@ -40,7 +40,7 @@ namespace EscPosPrinter
         void ExecuteActions(IList<Action> actionsForPrinter);
         void Reset();
         void PrintBarcode(BarcodeType type, string data);
-        void SetLargeBarcode(bool large);
+        void SetLargeBarcode(int large);
         void SetBarcodeLeftSpace(byte spacingDots);
         //void PrintImagePath(string fileName);
         void PrintImage(string image, int maxWidth = 150);
