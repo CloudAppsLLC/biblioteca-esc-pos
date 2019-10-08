@@ -6,16 +6,58 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Collections;
+using System.Drawing.Imaging;
 
 namespace EscPosPrinter
 {
+    public enum StatusType
+    {
+        EstadoImpressora = 1,
+        IndicadorDesligamento = 2,
+        IndicadorErro = 3,
+        SensorPapel = 4
+    }
+
     public class Printer : PortWriter, IPrinter
     {
+        private const int ESC = 27;
+        private const int GS = 29;
+        private const int DLE = 16;
+        private const int EOT = 4;
+
         private byte MaxPrinting = 7;
         private byte HeatingTime = 80;
         private byte HeatingInterval = 2;
+        private string namePrinter = "";
+
+        private Dictionary<char, byte> mapSpecialCharacter;
+
+        public Dictionary<char, byte> MapSpecialCharacter
+        {
+            get
+            {
+                if (mapSpecialCharacter == null)
+                {
+                    mapSpecialCharacter = new Dictionary<char, byte>()
+                    {
+                        {'Ç',128 },
+                        {'ç', 135 },
+                        {'º', 167 },
+                        {'Ô', 147 },
+                        {'ô', 147 },
+                        {'Õ', 79 },
+                        {'õ', 111} ,
+                        {'|', 124 },
+                };
+                }
+                return mapSpecialCharacter;
+            }
+            set
+            {
+                mapSpecialCharacter = value;
+            }
+        }
 
         public int PictureLineSleepTimeMs { get; set; } = 40;
         public int WriteLineSleepTimeMs { get; set; } = 0;
@@ -82,10 +124,19 @@ namespace EscPosPrinter
                 initialize.Invoke();
             }
         }
-
         public void WriteLine(string text)
         {
-            WriteToBuffer(text, LocalEncoding);
+            for (var i = 0; i < text.Length; i++)
+            {
+                if (!MapSpecialCharacter.ContainsKey(text[i]))
+                {
+                    WriteToBuffer(text[i].ToString());
+                    continue;
+                }
+                WriteByte(MapSpecialCharacter[text[i]]);
+
+            }
+            //WriteToBuffer(text, LocalEncoding);
             WriteByte(10);
 
             Thread.Sleep(WriteLineSleepTimeMs);
@@ -93,14 +144,14 @@ namespace EscPosPrinter
 
         public void SetInversionOn()
         {
-            WriteByte(29);
+            WriteByte(GS);
             WriteByte(66);
             WriteByte(1);
         }
 
         public void SetInversionOff()
         {
-            WriteByte(29);
+            WriteByte(GS);
             WriteByte(66);
             WriteByte(0);
         }
@@ -122,14 +173,14 @@ namespace EscPosPrinter
             const byte DoubleWidth = 1 << 5;
             const byte Bold = 1 << 3;
 
-            WriteByte(27);
+            WriteByte(ESC);
             WriteByte(33);
             WriteByte(DoubleHeight + DoubleWidth + Bold);
         }
 
         public void SetBifOff()
         {
-            WriteByte(27);
+            WriteByte(ESC);
             WriteByte(33);
             WriteByte(0);
         }
@@ -164,12 +215,12 @@ namespace EscPosPrinter
 
             if (underlineHeight != 0)
             {
-                WriteByte(27);
+                WriteByte(ESC);
                 WriteByte(45);
                 WriteByte(underlineHeight);
             }
 
-            WriteByte(27);
+            WriteByte(ESC);
             WriteByte(33);
             WriteByte(style);
         }
@@ -178,11 +229,11 @@ namespace EscPosPrinter
         {
             if (underlineHeight != 0)
             {
-                WriteByte(27);
+                WriteByte(ESC);
                 WriteByte(45);
                 WriteByte(0);
             }
-            WriteByte(27);
+            WriteByte(ESC);
             WriteByte(33);
             WriteByte(0);
         }
@@ -200,20 +251,20 @@ namespace EscPosPrinter
 
         public void BoldOn()
         {
-            WriteByte(27);
+            WriteByte(ESC);
             WriteByte(32);
             WriteByte(1);
-            WriteByte(27);
+            WriteByte(ESC);
             WriteByte(69);
             WriteByte(1);
         }
 
         public void BoldOff()
         {
-            WriteByte(27);
+            WriteByte(ESC);
             WriteByte(32);
             WriteByte(0);
-            WriteByte(27);
+            WriteByte(ESC);
             WriteByte(69);
             WriteByte(0);
         }
@@ -221,24 +272,20 @@ namespace EscPosPrinter
         public void WriteLineBold(string text)
         {
             BoldOn();
-
             WriteLine(text);
-
             BoldOff();
-
-            LineFeed();
         }
 
         public void WhiteOnBlackOn()
         {
-            WriteByte(29);
+            WriteByte(GS);
             WriteByte(66);
             WriteByte(1);
         }
 
         public void WhiteOnBlackOff()
         {
-            WriteByte(29);
+            WriteByte(GS);
             WriteByte(66);
             WriteByte(0);
         }
@@ -246,7 +293,7 @@ namespace EscPosPrinter
         public void SetSize(bool doubleWidth, bool doubleHeight)
         {
             int sizeValue = (Convert.ToInt32(doubleWidth)) * (0xF0) + (Convert.ToInt32(doubleHeight)) * (0x0F);
-            WriteByte(29);
+            WriteByte(GS);
             WriteByte(33);
             WriteByte((byte)sizeValue);
         }
@@ -258,7 +305,7 @@ namespace EscPosPrinter
 
         public void LineFeed(byte lines)
         {
-            WriteByte(27);
+            WriteByte(ESC);
             WriteByte(100);
             WriteByte(lines);
         }
@@ -275,59 +322,61 @@ namespace EscPosPrinter
                 columns = 0;
             }
 
-            WriteByte(27);
+            WriteByte(ESC);
             WriteByte(66);
             WriteByte(columns);
         }
 
         public void SetLineSpacing(byte lineSpacing)
         {
-            WriteByte(27);
+            WriteByte(ESC);
             WriteByte(51);
             WriteByte(lineSpacing);
         }
 
         public void SetAlignLeft()
         {
-            WriteByte(27);
+            WriteByte(ESC);
             WriteByte(97);
             WriteByte(0);
         }
 
         public void SetAlignCenter()
         {
-            WriteByte(27);
+            WriteByte(ESC);
             WriteByte(97);
             WriteByte(1);
         }
 
         public void SetAlignRight()
         {
-            WriteByte(27);
+            WriteByte(ESC);
             WriteByte(97);
             WriteByte(2);
         }
 
-        public void HorizontalLine(int length)
+        public void HorizontalLine(string nameprinter)
         {
-            if (length > 0)
+            //Elgin length = 64
+            //Sweda length = 56
+            int length = 56;
+            namePrinter = nameprinter;
+            if (nameprinter == "elgin")
             {
-                if (length > 32)
-                {
-                    length = 32;
-                }
-
-                for (int i = 0; i < length; i++)
-                {
-                    WriteByte(0xC4);
-                }
-                WriteByte(10);
+                length = 61;
             }
+
+            for (int i = 0; i < length; i++)
+            {
+                WriteByte(0xC4);
+            }
+            WriteByte(10);
+
         }
 
         public void Reset()
         {
-            WriteByte(27);
+            WriteByte(ESC);
             WriteByte(64);
             Thread.Sleep(50);
         }
@@ -353,7 +402,7 @@ namespace EscPosPrinter
                 case BarcodeType.upc_a:
                     if (data.Length == 11 || data.Length == 12)
                     {
-                        WriteByte(29);
+                        WriteByte(GS);
                         WriteByte(107);
                         WriteByte(0);
                         Write(outputBytes, 0, data.Length);
@@ -363,7 +412,7 @@ namespace EscPosPrinter
                 case BarcodeType.upc_e:
                     if (data.Length == 11 || data.Length == 12)
                     {
-                        WriteByte(29);
+                        WriteByte(GS);
                         WriteByte(107);
                         WriteByte(1);
                         Write(outputBytes, 0, data.Length);
@@ -371,7 +420,7 @@ namespace EscPosPrinter
                     }
                     break;
                 case BarcodeType.ean13:
-                    WriteByte(29);
+                    WriteByte(GS);
                     WriteByte(107);
                     WriteByte(2);
                     Write(outputBytes, 0, data.Length);
@@ -379,7 +428,7 @@ namespace EscPosPrinter
                     break;
                 case BarcodeType.ean8:
 
-                    WriteByte(29);
+                    WriteByte(GS);
                     WriteByte(107);
                     WriteByte(3);
                     Write(outputBytes, 0, data.Length);
@@ -388,7 +437,7 @@ namespace EscPosPrinter
                     break;
                 case BarcodeType.code39:
 
-                    WriteByte(29);
+                    WriteByte(GS);
                     WriteByte(107);
                     WriteByte(4);
                     Write(outputBytes, 0, data.Length);
@@ -397,7 +446,7 @@ namespace EscPosPrinter
                     break;
                 case BarcodeType.i25:
 
-                    WriteByte(29);
+                    WriteByte(GS);
                     WriteByte(107);
                     WriteByte(5);
                     Write(outputBytes, 0, data.Length);
@@ -406,7 +455,7 @@ namespace EscPosPrinter
                     break;
                 case BarcodeType.codebar:
 
-                    WriteByte(29);
+                    WriteByte(GS);
                     WriteByte(107);
                     WriteByte(6);
                     Write(outputBytes, 0, data.Length);
@@ -416,18 +465,18 @@ namespace EscPosPrinter
                 case BarcodeType.code93: //todo: overload PrintBarcode method with a byte array parameter
                     if (data.Length > 1)
                     {
-                        WriteByte(29);
+                        WriteByte(GS);
                         WriteByte(107);
                         WriteByte(7); //todo: use format 2 (init string : 29,107,72) (0x00 can be a value, too)
                         Write(outputBytes, 0, data.Length);
                         WriteByte(0);
                     }
                     break;
-                    //FUNCIONANDO PARA ELGIN I9
-                /*case BarcodeType.code128: //todo: overload PrintBarcode method with a byte array parameter
+                //FUNCIONANDO PARA ELGIN I9
+                case BarcodeType.code128: //todo: overload PrintBarcode method with a byte array parameter
                     if (data.Length > 1)
                     {
-                        WriteByte(29);
+                        WriteByte(GS);
                         WriteByte(107);
 
                         WriteByte(73); //todo: use format 2 (init string : 29,107,73) (0x00 can be a value, too
@@ -439,31 +488,31 @@ namespace EscPosPrinter
                         Write(originalBytes, 0, originalBytes.Length);
                         WriteByte(0);
                     }
-                    break;*/
-
-                case BarcodeType.code128: //todo: overload PrintBarcode method with a byte array parameter
-  
-                        WriteByte(29);
-                        WriteByte(107);
-
-                        WriteByte(73); //todo: use format 2 (init string : 29,107,73) (0x00 can be a value, too
-                        WriteByte((byte)(originalBytes.Length)); //length
-
-                       // WriteByte(123); // {
-                       // WriteByte(65); // A
-                      /* foreach(var b in originalBytes)
-                        {
-                            WriteByte(b);
-                        }*/
-
-                       Write(originalBytes, 0, originalBytes.Length);
-                       WriteByte(0);
                     break;
+
+                //case BarcodeType.code128: //todo: overload PrintBarcode method with a byte array parameter
+
+                //   WriteByte(GS);
+                //    WriteByte(107);
+
+                //    WriteByte(73); //todo: use format 2 (init string : 29,107,73) (0x00 can be a value, too
+                //    WriteByte((byte)(originalBytes.Length)); //length
+
+                //    WriteByte(123); // {
+                //    WriteByte(65); // A
+                //                   /* foreach(var b in originalBytes)
+                //                     {
+                //                         WriteByte(b);
+                //                     }*/
+
+                //    Write(originalBytes, 0, originalBytes.Length);
+                //    WriteByte(0);
+                //    break;
 
                 case BarcodeType.code11:
                     if (data.Length > 1)
                     {
-                        WriteByte(29);
+                        WriteByte(GS);
                         WriteByte(107);
                         WriteByte(9);
                         Write(outputBytes, 0, data.Length);
@@ -473,7 +522,7 @@ namespace EscPosPrinter
                 case BarcodeType.msi:
                     if (data.Length > 1)
                     {
-                        WriteByte(29);
+                        WriteByte(GS);
                         WriteByte(107);
                         WriteByte(10);
                         Write(outputBytes, 0, data.Length);
@@ -485,87 +534,66 @@ namespace EscPosPrinter
 
         public void SetLargeBarcode(int large)
         {
-                WriteByte(29);
-                WriteByte(119);
-                WriteByte((byte)large);
+            WriteByte(GS);
+            WriteByte(119);
+            WriteByte((byte)large);
         }
 
         public void SetHeigthBarcode(int heigth)
         {
-            WriteByte(29);
+            WriteByte(GS);
             WriteByte(104);
             WriteByte(50);
         }
 
         public void SetBarcodeLeftSpace(byte spacingDots)
         {
-            WriteByte(29);
+            WriteByte(GS);
             WriteByte(120);
             WriteByte(spacingDots);
         }
 
-        //public void PrintImage(string fileName)
-        //{
+        public void SetFontSize(byte height = 1)
+        {
+            WriteByte(ESC);
+            WriteByte(33);
+            WriteByte(height);
+        }
 
-        //    if (!File.Exists(fileName))
-        //    {
-        //        throw (new Exception("File does not exist."));
-        //    }
+        public void SetEspaceBetweenLines(byte space = 0)
+        {
+            WriteByte(ESC);
+            WriteByte(51);
+            WriteByte(space);
+        }
 
-        //    PrintImage(new Bitmap(fileName));
+        public void SetMarginLeft(byte value = 10, byte margin = 2)
+        {
+            //sweda = 2  //elgin = 0
+            WriteByte(GS);
+            WriteByte(76);
+            WriteByte(value);
+            WriteByte(margin);
+        }
 
-        //}
+        public void SetColumn(byte column, byte value)
+        {
+            WriteByte(ESC);
+            WriteByte(68);
+            WriteByte(column);
+            WriteByte(value);
 
-        //public void PrintImage(Bitmap image)
-        //{
-        //    int width = image.Width;
-        //    int height = image.Height;
+        }
 
-        //    byte[,] imgArray = new byte[width, height];
+        public void NextTab()
+        {
+            WriteByte(9);
 
-        //    if (width != 384 || height > 65635)
-        //    {
-        //        throw (new Exception("Image width must be 384px, height cannot exceed 65635px."));
-        //    }
-
-        //    // Processing image data	
-        //    for (int y = 0; y < image.Height; y++)
-        //    {
-        //        for (int x = 0; x < (image.Width / 8); x++)
-        //        {
-        //            imgArray[x, y] = 0;
-        //            for (byte n = 0; n < 8; n++)
-        //            {
-        //                Color pixel = image.GetPixel(x * 8 + n, y);
-        //                if (pixel.GetBrightness() < 0.5)
-        //                {
-        //                    imgArray[x, y] += (byte)(1 << n);
-        //                }
-        //            }
-        //        }
-        //    }
-
-        //    // Print LSB first bitmap
-        //    WriteByte(18);
-        //    WriteByte(118);
-
-        //    WriteByte((byte)(height & 255));   // height LSB
-        //    WriteByte((byte)(height >> 8));    // height MSB
-
-
-        //    for (int y = 0; y < height; y++)
-        //    {
-        //        System.Threading.Thread.Sleep(PictureLineSleepTimeMs);
-        //        for (int x = 0; x < (width / 8); x++)
-        //        {
-        //            WriteByte(imgArray[x, y]);
-        //        }
-        //    }
-        //}
+        }
 
         public void SetPrintingParameters(byte maxPrinting, byte heatingTime, byte heatingInterval)
         {
-            WriteByte(27);
+            WriteByte(ESC);
             WriteByte(55);
             WriteByte(maxPrinting);
             WriteByte(heatingTime);
@@ -574,14 +602,14 @@ namespace EscPosPrinter
 
         public void Sleep()
         {
-            WriteByte(27);
+            WriteByte(ESC);
             WriteByte(61);
             WriteByte(0);
         }
 
         public void WakeUp()
         {
-            WriteByte(27);
+            WriteByte(ESC);
             WriteByte(61);
             WriteByte(1);
         }
@@ -596,7 +624,7 @@ namespace EscPosPrinter
 
         public void FeedDots(byte dotsToFeed)
         {
-            WriteByte(27);
+            WriteByte(ESC);
             WriteByte(74);
             WriteByte(dotsToFeed);
         }
@@ -606,12 +634,12 @@ namespace EscPosPrinter
             switch (encoding)
             {
                 case "IBM437":
-                    WriteByte(27);
+                    WriteByte(ESC);
                     WriteByte(116);
                     WriteByte(0);
                     break;
                 case "ibm850":
-                    WriteByte(27);
+                    WriteByte(ESC);
                     WriteByte(116);
                     WriteByte(1);
                     break;
@@ -637,7 +665,7 @@ namespace EscPosPrinter
 
         public void SetMarginLeft(byte value)
         {
-            WriteByte(29);
+            WriteByte(GS);
             WriteByte(76);
             WriteByte(value);
             WriteByte(0);
@@ -645,7 +673,7 @@ namespace EscPosPrinter
 
         public void SetLetterSpacing(byte letterSpacing)
         {
-            WriteByte(27);
+            WriteByte(ESC);
             WriteByte(32);
             WriteByte(letterSpacing);
         }
@@ -684,14 +712,17 @@ namespace EscPosPrinter
 
         }
 
-        public void PrintImage(string fileName, int maxWidth = 150)
+        public void PrintImage(string fileName, int maxWidth = 300, Bitmap bpm = null)
         {
-            if (!File.Exists(fileName))
+            if (bpm == null)
             {
-                throw (new Exception("File does not exist."));
+                if (!File.Exists(fileName))
+                {
+                    throw (new Exception("File does not exist."));
+                }
             }
 
-            BitmapData data = GetBitmapData(fileName, maxWidth);
+            BitmapData data = GetBitmapData(fileName, maxWidth, bpm);
             BitArray dots = data.Dots;
             byte[] width = BitConverter.GetBytes(data.Width);
 
@@ -699,8 +730,11 @@ namespace EscPosPrinter
             MemoryStream stream = new MemoryStream();
             BinaryWriter bw = new BinaryWriter(stream);
 
-            bw.Write((char)27);
-            bw.Write('@');
+            if (namePrinter != "elgin")
+            {
+                bw.Write((char)27);
+                bw.Write('@');
+            }
 
             bw.Write((char)27);
             bw.Write('3');
@@ -739,7 +773,11 @@ namespace EscPosPrinter
                     }
                 }
                 offset += 24;
-                bw.Write((char)0x0A);
+                if (offset < data.Height)
+                {
+                    bw.Write((char)0x0A);
+                }
+
             }
             // Restore the line spacing to the default of 30 dots.
             bw.Write((char)27);
@@ -751,39 +789,51 @@ namespace EscPosPrinter
             Write(bytes, 0, bytes.Length);
         }
 
-        public BitmapData GetBitmapData(string bmpFileName, int xmultiplier = 150)
+        public BitmapData GetBitmapData(string bmpFileName, int xmultiplier = 350, Bitmap bpm = null)
         {
-            using (var bitmap = (Bitmap)Bitmap.FromFile(bmpFileName))
+            Bitmap bitmap = null;
+            if (bpm != null)
             {
-                var threshold = 127;
-                var index = 0;
-                double multiplier = xmultiplier; // this depends on your printer model. for Beiyang you should use 1000
-                double scale = (double)(multiplier / (double)bitmap.Width);
-                int xheight = (int)(bitmap.Height * scale);
-                int xwidth = (int)(bitmap.Width * scale);
-                var dimensions = xwidth * xheight;
-                var dots = new BitArray(dimensions);
-
-                for (var y = 0; y < xheight; y++)
-                {
-                    for (var x = 0; x < xwidth; x++)
-                    {
-                        var _x = (int)(x / scale);
-                        var _y = (int)(y / scale);
-                        var color = bitmap.GetPixel(_x, _y);
-                        var luminance = (int)(color.R * 0.3 + color.G * 0.59 + color.B * 0.11);
-                        dots[index] = (luminance < threshold);
-                        index++;
-                    }
-                }
-
-                return new BitmapData()
-                {
-                    Dots = dots,
-                    Height = (int)(bitmap.Height * scale),
-                    Width = (int)(bitmap.Width * scale)
-                };
+                bitmap = bpm;
             }
+            else
+            {
+                bitmap = (Bitmap)Bitmap.FromFile(bmpFileName);
+            }
+
+            var threshold = 127;
+            var index = 0;
+            double multiplier = xmultiplier; // this depends on your printer model. for Beiyang you should use 1000
+            double scale = (double)(multiplier / (double)bitmap.Width);
+            int xheight = (int)(bitmap.Height * scale);
+            int xwidth = (int)(bitmap.Width * scale);
+            var dimensions = xwidth * xheight;
+            var dots = new BitArray(dimensions);
+
+            for (var y = 0; y < xheight; y++)
+            {
+                for (var x = 0; x < xwidth; x++)
+                {
+                    var _x = (int)(x / scale);
+                    var _y = (int)(y / scale);
+                    var color = bitmap.GetPixel(_x, _y);
+                    var luminance = (int)(color.R * 0.3 + color.G * 0.59 + color.B * 0.11);
+                    dots[index] = (luminance < threshold);
+                    index++;
+                }
+            }
+            return new BitmapData()
+            {
+                Dots = dots,
+                Height = (int)(bitmap.Height * scale),
+                Width = (int)(bitmap.Width * scale)
+            };
+
+        }
+
+        public void BreakText(string text)
+        {
+
         }
 
         public class BitmapData
@@ -806,11 +856,58 @@ namespace EscPosPrinter
                 set;
             }
         }
+        public void setConfigurationInitial(IPrinter printer, string nameprinter = "sweda")
+        {
+            printer.Reset();
+            if (nameprinter.Equals("sweda"))
+            {
+                printer.SetEspaceBetweenLines(45);
+                printer.SetFontSize(5);
+            }
+            else
+            {
+                printer.SetEspaceBetweenLines(45);
+                printer.SetMarginLeft(20, 0);
+                printer.SetFontSize(5);
+                MapSpecialCharacter['Ô'] = 140;
+                MapSpecialCharacter['Õ'] = 153;
+                MapSpecialCharacter['õ'] = 148;
 
+            }
+        }
 
+        public string GetPrinterModel()
+        {
+            WriteByte(GS);
+            WriteByte(73);
+            WriteByte(67);
 
+            Thread.Sleep(3);
+            string ret = "";
+            int c;
+            c = ReadChar();
+            while (c >= 0)
+            {
+                c = ReadChar();
+                ret += (char)c;
+            }
+
+            return ret;
+        }
+
+        public byte GetPrinterStatus(StatusType statusType)
+        {
+            WriteByte(DLE);
+            WriteByte(EOT);
+            WriteByte((byte)statusType);
+            Thread.Sleep(100);
+            int c = ReadChar();
+            while (ReadChar() != -1)
+            {
+                Thread.Sleep(1);
+            }
+            return (byte)c;
+        }
 
     }
-
-
 }

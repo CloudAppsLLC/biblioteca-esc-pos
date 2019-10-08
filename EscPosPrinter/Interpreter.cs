@@ -20,13 +20,7 @@ namespace EscPosPrinter
             {
                 var elements = XmlLoader.Load(text);
                 var commands = Transpilator.TranspileElements(elements);
-
-                actions.Add(() => Printer.WakeUp());
-                actions.Add(() => Printer.Reset());
-                actions.Add(() => Printer.SetLineSpacing(2));
-                actions.Add(() => Printer.SetLetterSpacing(2));
-                actions.Add(() => Printer.SetMarginLeft(20)); // if elgin
-
+                
                 foreach (var command in commands)
                 {
                     if (!string.IsNullOrEmpty(command.Tag))
@@ -43,20 +37,16 @@ namespace EscPosPrinter
 
                             case "b":
                                 actions.Add(() => Printer.BoldOn());
-                                actions.Add(() => Printer.WriteLine(command.Value));
+                                actions.Add(() => Printer.WriteToBuffer(" " + command.Value));
                                 break;
                             case "/b":
                                 actions.Add(() => Printer.BoldOff());
                                 break;
 
                             case "c":
-                                actions.Add(() => Printer.SetLineSpacing(0));
-                                actions.Add(() => Printer.SetLetterSpacing(0));
-                                actions.Add(() => Printer.WriteLine(command.Value));
+                                actions.Add(() => Printer.WriteToBuffer(command.Value + " "));
                                 break;
                             case "/c":
-                                actions.Add(() => Printer.SetLineSpacing(2));
-                                actions.Add(() => Printer.SetLetterSpacing(2));
                                 break;
 
                             case "ce":
@@ -86,13 +76,13 @@ namespace EscPosPrinter
                                 break;
 
                             default:
-                                actions.Add(() => Printer.WriteLine(command.Value));
+                                actions.Add(() => Printer.WriteToBuffer(command.Value));
                                 break;
                         }
                     }
                     else
                     {
-                        actions.Add(() => Printer.WriteLine(command.Value));
+                        actions.Add(() => Printer.WriteToBuffer(command.Value));
                     }
                 }
 

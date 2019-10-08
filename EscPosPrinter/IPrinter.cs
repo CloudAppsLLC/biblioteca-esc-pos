@@ -7,10 +7,10 @@ namespace EscPosPrinter
 {
     public interface IPrinter : IDisposable
     {
+        Dictionary<char, byte> MapSpecialCharacter { get; set; }
         int PictureLineSleepTimeMs { get; set; }
         int WriteLineSleepTimeMs { get; set; }
         string LocalEncoding { get; set; }
-
         void WriteLine(string text);
         void WriteLine(string text, byte style);
         void WriteLine(string text, PrintingStyle style);
@@ -36,14 +36,13 @@ namespace EscPosPrinter
         void SetAlignLeft();
         void SetAlignCenter();
         void SetAlignRight();
-        void HorizontalLine(int length);
+        void HorizontalLine(string nameprinter);
         void ExecuteActions(IList<Action> actionsForPrinter);
         void Reset();
         void PrintBarcode(BarcodeType type, string data);
         void SetLargeBarcode(int large);
         void SetBarcodeLeftSpace(byte spacingDots);
-        //void PrintImagePath(string fileName);
-        void PrintImage(string image, int maxWidth = 150);
+        void PrintImage(string image, int maxWidth = 350, Bitmap bpm = null);
         void SetPrintingParameters(byte maxPrinting, byte heatingTime, byte heatingInterval);
         void Sleep();
         void WakeUp();
@@ -53,5 +52,12 @@ namespace EscPosPrinter
         void SetLetterSpacing(byte letterSpacing);
         void PrintQrCode(string data);
         void SetHeigthBarcode(int heigth);
+        void SetFontSize(byte height = 1);
+        void SetEspaceBetweenLines(byte space = 0);
+        void SetMarginLeft(byte value = 10, byte margin = 2);
+        void SetColumn(byte column, byte value);
+        void NextTab();
+        void setConfigurationInitial(IPrinter printer, string nameprinter = "sweda");
+        string GetPrinterModel();
     }
 }

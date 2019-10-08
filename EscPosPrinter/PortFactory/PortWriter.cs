@@ -82,6 +82,14 @@ namespace EscPosPrinter.PortFactory
             PortCOM.Write(outputBytes, 0, outputBytes.Length);
         }
 
+        public byte[] GetBytes(string text, string localEncoding)
+        {
+            byte[] originalBytes = Encoding.UTF8.GetBytes(text);
+            byte[] outputBytes = Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(localEncoding), originalBytes);
+
+            return outputBytes;
+        }
+
         private string IntArrayToStringCmd(int[] command)
         {
             string @return = string.Empty;
@@ -97,6 +105,25 @@ namespace EscPosPrinter.PortFactory
         public void WriteIntegers(params int[] vTWs)
         {
             PortCOM.Write(IntArrayToStringCmd(vTWs));
+        }
+
+        public int ReadChar()
+        {
+            int oldTimeout = PortCOM.ReadTimeout;            
+            
+            try
+            {
+                PortCOM.ReadTimeout = 10;
+                return PortCOM.ReadChar();
+            }
+            catch( TimeoutException)
+            {
+                return -1;
+            }
+            finally
+            {
+                PortCOM.ReadTimeout = oldTimeout;
+            }
         }
 
         public void Dispose()
