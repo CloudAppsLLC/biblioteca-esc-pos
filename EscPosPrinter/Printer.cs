@@ -1006,11 +1006,6 @@ namespace EscPosPrinter
 
             SetEncodingPtBR();
         }
-
-        public void Noob()
-        {
-            return;
-            
-        }
+       
     }
 }
