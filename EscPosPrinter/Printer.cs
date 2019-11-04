@@ -25,6 +25,7 @@ namespace EscPosPrinter
         private const int GS = 29;
         private const int DLE = 16;
         private const int EOT = 4;
+        private const int FF = 12;
 
         private byte MaxPrinting = 7;
         private byte HeatingTime = 80;
@@ -126,18 +127,20 @@ namespace EscPosPrinter
         }
         public void WriteLine(string text)
         {
-            for (var i = 0; i < text.Length; i++)
-            {
-                if (!MapSpecialCharacter.ContainsKey(text[i]))
-                {
-                    WriteToBuffer(text[i].ToString());
-                    continue;
-                }
-                WriteByte(MapSpecialCharacter[text[i]]);
-
-            }
-            //WriteToBuffer(text, LocalEncoding);
+            WriteToBuffer(text, LocalEncoding);
             WriteByte(10);
+            //for (var i = 0; i < text.Length; i++)
+            //{
+            //    if (!MapSpecialCharacter.ContainsKey(text[i]))
+            //    {
+            //        WriteToBuffer(text[i].ToString());
+            //        continue;
+            //    }
+            //    WriteByte(MapSpecialCharacter[text[i]]);
+
+            //}
+            //WriteToBuffer(text, LocalEncoding);
+           
 
             Thread.Sleep(WriteLineSleepTimeMs);
         }
@@ -372,13 +375,15 @@ namespace EscPosPrinter
             }
             WriteByte(10);
 
-        }
+        }       
 
         public void Reset()
         {
             WriteByte(ESC);
             WriteByte(64);
             Thread.Sleep(50);
+
+            SendEncoding(LocalEncoding);
         }
 
         public void PrintBarcode(BarcodeType type, string data)
@@ -628,9 +633,21 @@ namespace EscPosPrinter
             WriteByte(74);
             WriteByte(dotsToFeed);
         }
-
+        public void SetEncodingPtBR()
+        {
+            WriteByte(ESC);
+            WriteByte((byte)'t');
+            WriteByte(16);
+        }
         private void SendEncoding(string encoding)
         {
+            this.LocalEncoding = encoding;
+            SetEncodingPtBR();
+
+            return;
+
+
+
             switch (encoding)
             {
                 case "IBM437":
@@ -732,8 +749,8 @@ namespace EscPosPrinter
 
             if (namePrinter != "elgin")
             {
-                bw.Write((char)27);
-                bw.Write('@');
+                //bw.Write((char)27);
+                //bw.Write('@');
             }
 
             bw.Write((char)27);
@@ -909,5 +926,91 @@ namespace EscPosPrinter
             return (byte)c;
         }
 
+        public void PageModeOn()
+        {
+            WriteByte(ESC);
+            WriteByte((byte)'L');
+        }
+
+        public void PageModeOff()
+        {
+            WriteByte(ESC);
+            WriteByte((byte)'S');
+        }
+
+        public void PrintPageMode()
+        {
+            WriteByte(ESC);
+            WriteByte(FF);
+        }
+
+        static int MmToDots(int dpi, double mm)
+        {
+            double fator = dpi / 25.4;
+            return Convert.ToInt32(fator * mm);
+        }
+
+        static void CalculePos(int dpi, double valorEmMilimetro, out int l, out int h)
+        {
+            int valorTotal = MmToDots(dpi, valorEmMilimetro);
+            int divisao = valorTotal > 256 ? valorTotal / 256 : 0;
+            int resto = valorTotal - (divisao * 256);
+            h = divisao;
+            l = resto;
+        }
+
+        public void SetModePageArea(double x, double y, double width, double height, int dpi = 203)
+        {
+            int xl, xH, yl, yH, xwl, xwH, ywl, ywH;
+            // calculando x inicial
+            CalculePos(dpi, x, out xl,  out xH);
+            // calculando y inicial
+            CalculePos(dpi, y, out yl, out yH);
+            // calculando largura 
+            CalculePos(dpi, width, out xwl, out xwH);
+            // calculando altura 
+            CalculePos(dpi, height, out ywl, out ywH);
+            // Enviando o comando
+            SetModePageArea(xl, xH, yl, yH, xwl, xwH, ywl, ywH);
+
+        }
+        private void SetModePageArea(int xL, int xH, int yL, int yH, int dxL, int dxH, int dyL, int dyH)
+        {
+            WriteByte(ESC);
+            WriteByte((byte)'W');
+
+            WriteByte((byte)xL);
+            WriteByte((byte)xH);
+            WriteByte((byte)yL);
+            WriteByte((byte)yH);
+            WriteByte((byte)dxL);
+            WriteByte((byte)dxH);
+            WriteByte((byte)dyL);
+            WriteByte((byte)dyH);
+        }
+
+        void IPrinter.HorizontalLine(int dpi, double largura, bool fontSmall)
+        {
+            WriteByte(ESC);
+            WriteByte(116);
+            WriteByte(0);
+
+            int larguraEmDots = MmToDots(dpi, largura);
+            int laguraFonte = fontSmall ? 9 : 12;
+            int qtdCaracters = larguraEmDots / laguraFonte;            
+            for (int i = 0; i < qtdCaracters; i++)
+            {
+                WriteByte(0xC4);
+            }
+            WriteByte(10);
+
+            SetEncodingPtBR();
+        }
+
+        public void Noob()
+        {
+            return;
+            
+        }
     }
 }

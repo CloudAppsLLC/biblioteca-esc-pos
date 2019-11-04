@@ -74,12 +74,23 @@ namespace EscPosPrinter.PortFactory
 
         public void WriteToBuffer(string text, string localEncoding)
         {
+            if ( text == null)
+            {
+                return;
+            }
             text = text.Trim('\n').Trim('\r');
+            //byte[] originalBytes = System.Text.Encoding.ASCII.GetBytes(text);
+            var array = text.ToCharArray();
+            foreach(var c in array)
+            {
+                WriteByte((byte)c);
+            }
+            return;
 
-            byte[] originalBytes = Encoding.UTF8.GetBytes(text);
-            byte[] outputBytes = Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(localEncoding), originalBytes);
+            //byte[] originalBytes = Encoding.ASCII.GetBytes(text);
+            //byte[] outputBytes = Encoding.Convert(Encoding.ASCII, Encoding.GetEncoding(localEncoding), originalBytes);
 
-            PortCOM.Write(outputBytes, 0, outputBytes.Length);
+            //PortCOM.Write(outputBytes, 0, outputBytes.Length);
         }
 
         public byte[] GetBytes(string text, string localEncoding)

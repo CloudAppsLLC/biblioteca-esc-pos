@@ -39,6 +39,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <PlatformTarget>x86</PlatformTarget>
     <OutputPath>bin\x86\Debug\</OutputPath>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <PlatformTarget>x86</PlatformTarget>
@@ -120,13 +121,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EscPosPrinter\EscPosPrinter.csproj">
-      <Project>{b4c6b10b-dee3-4604-bdac-c7d47d122e99}</Project>
-      <Name>EscPosPrinter</Name>
-    </ProjectReference>
+    <Content Include="images\pmenos.bmp" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="images\pmenos.bmp" />
+    <ProjectReference Include="..\EscPosPrinter\EscPosPrinter.csproj">
+      <Project>{B4C6B10B-DEE3-4604-BDAC-C7D47D122E99}</Project>
+      <Name>EscPosPrinter</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Magick.NET-Q16-x86.7.14.4\build\net40\Magick.NET-Q16-x86.targets" Condition="Exists('..\packages\Magick.NET-Q16-x86.7.14.4\build\net40\Magick.NET-Q16-x86.targets')" />

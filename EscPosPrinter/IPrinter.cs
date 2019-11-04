@@ -37,6 +37,7 @@ namespace EscPosPrinter
         void SetAlignCenter();
         void SetAlignRight();
         void HorizontalLine(string nameprinter);
+        void HorizontalLine(int dpi, double largura, bool fontSmall);
         void ExecuteActions(IList<Action> actionsForPrinter);
         void Reset();
         void PrintBarcode(BarcodeType type, string data);
@@ -57,7 +58,13 @@ namespace EscPosPrinter
         void SetMarginLeft(byte value = 10, byte margin = 2);
         void SetColumn(byte column, byte value);
         void NextTab();
+        void PageModeOn();
+        void PageModeOff();
+        void PrintPageMode();        
+        void SetModePageArea(double x, double y, double width, double height, int dpi = 203);
         void setConfigurationInitial(IPrinter printer, string nameprinter = "sweda");
         string GetPrinterModel();
+
+        void SetEncodingPtBR();
     }
 }

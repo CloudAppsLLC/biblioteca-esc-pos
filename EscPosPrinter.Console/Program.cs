@@ -9,6 +9,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Drawing.Imaging;
 using ImageMagick;
+using EscPosPrinter;
 
 namespace EscPosPrinter.Console
 {
@@ -64,6 +65,21 @@ namespace EscPosPrinter.Console
             }
         }
 
+        static int MmToDots(int dpi, double mm)
+        {
+            double fator = dpi / 25.4;
+            return Convert.ToInt32( fator * mm);
+        }
+
+        static void CalculePos(int dpi, double valorEmMilimetro, out int l, out int h)
+        {
+            int valorTotal = MmToDots(dpi, valorEmMilimetro);
+            int divisao =  valorTotal > 256 ? valorTotal / 256:0;
+            int resto = valorTotal - (divisao * 256);
+            h = divisao;
+            l = resto;
+        }
+
         static void TestePrinter()
         {
             int x = 0;
@@ -78,8 +94,14 @@ namespace EscPosPrinter.Console
                     printer.WriteLineSleepTimeMs = 200;
                     printer.Reset();
 
+                    printer.HorizontalLine(203, 60, true);
 
-                  //  printer.setConfigurationInitial(printer, "elgin");
+                    printer.WriteLine("ÁÃÂÉÊÍÎÕÒÔ|çÇ");
+                    printer.HorizontalLine(203, 60, true);
+                    printer.LineFeed(3);
+                    printer.Guillotine();
+
+                    //  printer.setConfigurationInitial(printer, "elgin");
 
                     //for (byte i = 0; i < 8; i++) {
                     //    printer.SetFontSize1(i);
@@ -102,9 +124,9 @@ namespace EscPosPrinter.Console
                     // printer.SetMarginLeft(20, 0);
                     // //printer.WriteLineSleepTimeMs = 200;
                     // printer.WriteLine("OBSERVACOES DO CONTRIBUINTE");
-                   //  printer.SetAlignLeft();
-                   //  printer.WriteLine("--------------------------------------------------------");
-                   //  printer.WriteLine("CLIENTE SEMPRE PAGUE MENOS");
+                    //  printer.SetAlignLeft();
+                    //  printer.WriteLine("--------------------------------------------------------");
+                    //  printer.WriteLine("CLIENTE SEMPRE PAGUE MENOS");
                     // printer.WriteLine("OLA CLEBIO,");
                     // printer.WriteLine("VOCE E UM CLIENTE SEMPRE.");
                     // printer.WriteLine("NESSA COMPRA VOCE ECONOMIZOU R$ 48,36");
@@ -146,12 +168,50 @@ namespace EscPosPrinter.Console
 
 
 
-                    printer.WakeUp();
-                    System.Console.WriteLine(printer.ToString());
+
+
+                    /*printer.PageModeOn();
+
+                    //int xl, xH, yl, yH, xwl, xwH, ywl, ywH;
+
+                    //CalculePos(203, 3, out yl, out yH);
+                    //CalculePos(203, 80, out xwl, out xwH);
+                    //CalculePos(203, 80, out ywl, out ywH);
 
 
 
+                    //printer.SetModePageArea(0, 0, 0, 0, 127, 2, 127,2);
 
+                    //printer.WriteLine("LINHA 1");
+                    //printer.WriteLine("LINHA 2");
+                    //printer.WriteLine("LINHA 3");
+                    //CalculePos(203, 43, out xl, out xH);
+                    //CalculePos(203, 80-43, out xwl, out xwH);
+                    //CalculePos(203, 80, out ywl, out ywH);
+                    //printer.SetModePageArea(103, 1, 0, 0, 23, 1, 127, 2);
+                    printer.SetModePageArea(2, 2.5, 80, 85);
+                    //printer.PrintQrCode(@"35150909165024000175590000193130072726117830|20150924062259|50.00||hdMEPiER6rjZKyKA+4+voi1nncxsAGFbYsEEqnh04SbvUEI/haUF4GUBPxT6Q2Uhf9f8QYgxiwxWo3GxRrvj4WnNeTYgAqUAYmOANPItNkOw0CppmZ4R8i1ZOlnftVhksCM0zrl4RiKgoazbN44hUu2nQf0W/JLvFXzXu12JlcSThNtmyJ6m9WBsMc/sf9BE14HDoXMyKRIQYt5TkEjilHH9Ffa0saRyUIp+Fji89/Moq8YCCFC+qC44XGxsvNCeeHUNOc1LgPP0DbU1miwpVnrBlEl87RU8Iy0r8fN/fNhbcStkwfTEvhYvZz42nEKHrmGTpGZYkHuTFCNZPq7aCA==");
+                    printer.PrintImage(@"c:\Vitor\VENDA_LOGO.bmp", 219);
+                    printer.SetModePageArea(30, 2, 80-30, 80);
+                    //printer.SetModePageArea(103, 1, 0, 0, 23, 1, 127, 2);
+                    printer.SetLineSpacing((byte)MmToDots(203, 5));
+                    printer.SetFontSize(9);
+                    printer.WriteLine("EMITIDA EM AMBIENTE DE");
+                    printer.WriteLine("HOMOLOGACAO - SEM VALOR");
+                    printer.WriteLine("FISCAL");
+                    printer.WriteLine("CONSUMIDOR");
+                    printer.BoldOff();
+                    printer.WriteLine("CONSUMIDOR NÃO IDENTIFICADO.");
+
+                    
+                    //printer.WriteLine("LINHA 5");
+                    //printer.WriteLine("LINHA 6");
+                    printer.PrintPageMode();
+                    printer.PageModeOff();
+                    printer.Guillotine();
+
+
+                    */
 
                     //printer.SetTestPag();
 
@@ -188,8 +248,8 @@ namespace EscPosPrinter.Console
                     //printer.WriteLine("teste alguma coisa dois");
                     // printer.HorizontalLine(56);
                     //printer.SetLetterSpacing(100);[     
-                                  
-                    printer.Reset();
+
+                    //printer.Reset();
                     //printer.WriteLine("ãéíóúÁÉÍÓÚÔÕÇAEIOUaeiou");                   
                     //printer.SetFontSize(32);
                     //printer.WriteLine("teste alguma coisa dois");
@@ -302,7 +362,7 @@ namespace EscPosPrinter.Console
                     // TestQRcode(printer);
 
                     //   printer.LineFeed(3);
-
+                    
                     PrinterStatus ps = new PrinterStatus();
                     while (true)
                     {
