@@ -86,19 +86,26 @@ namespace EscPosPrinter.Console
                     printer.WakeUp();
                     printer.WriteLineSleepTimeMs = 200;
                     printer.Reset();
-                    
-                    printer.HorizontalLine(203, 60, true);
-                    for (byte i = 2; i < 3; i++)
-                    {
-                        
-                        printer.WriteLine($"ENCODING: {i}");
-                        printer.SetEncoding(i);
-                        printer.SetFontA();
-                        printer.WriteLine("ÁÉÍÓÚáéíóúçÇãõÃÕÊêÂâÔôÀà|");
-                        printer.SetFontB();
-                        printer.WriteLine("ÁÉÍÓÚáéíóúçÇãõÃÕÊêÂâÔôÀà|");                        
-                    }
-                    printer.HorizontalLine(203, 60, true);
+
+                    //printer.HorizontalLine(203, 60, true);
+                    //for (byte i = 2; i < 3; i++)
+                    //{
+
+                    //    printer.WriteLine($"ENCODING: {i}");
+                    //    printer.SetEncoding(i);
+                    //    printer.SetFontA();
+                    //    printer.WriteLine("ÁÉÍÓÚáéíóúçÇãõÃÕÊêÂâÔôÀà|");
+                    //    printer.SetFontB();
+                    //    printer.WriteLine("ÁÉÍÓÚáéíóúçÇãõÃÕÊêÂâÔôÀà|");                        
+                    //}
+                    //printer.HorizontalLine(203, 60, true);
+                    //printer.PageModeOn();
+                    //printer.SetModePageArea(0, 0, 76, 50);
+                    printer.SetMarginLeft(10);
+                    printer.PrintBarcode(BarcodeType.code128, "23191014200166000166599000100880003525780002");
+                    //printer.PrintBarcode(BarcodeType.code128, "3525780002");
+                    //printer.PrintPageMode();
+                    //printer.PageModeOff();
                     printer.LineFeed(3);
                     printer.Guillotine();
 

@@ -8,6 +8,7 @@ namespace EscPosPrinter
     public interface IPrinter : IDisposable
     {
         Dictionary<char, byte> MapSpecialCharacter { get; set; }
+        void OpenDrawer();
         int PictureLineSleepTimeMs { get; set; }
         int WriteLineSleepTimeMs { get; set; }
         string LocalEncoding { get; set; }
@@ -40,7 +41,7 @@ namespace EscPosPrinter
         void HorizontalLine(int dpi, double largura, bool fontSmall);
         void ExecuteActions(IList<Action> actionsForPrinter);
         void Reset();
-        void PrintBarcode(BarcodeType type, string data);
+        void PrintBarcode(BarcodeType type, string data);        
         void SetLargeBarcode(int large);
         void SetBarcodeLeftSpace(byte spacingDots);
         void PrintImage(string image, int maxWidth = 350, Bitmap bpm = null);

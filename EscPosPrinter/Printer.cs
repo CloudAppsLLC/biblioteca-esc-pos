@@ -21,11 +21,12 @@ namespace EscPosPrinter
 
     public class Printer : PortWriter, IPrinter
     {
-        private const int ESC = 27;
-        private const int GS = 29;
-        private const int DLE = 16;
-        private const int EOT = 4;
-        private const int FF = 12;
+        private const byte ESC = 27;
+        private const byte GS = 29;
+        private const byte DLE = 16;
+        private const byte EOT = 4;
+        private const byte FF = 12;
+        private const byte DC4 = 20;
 
         private byte MaxPrinting = 7;
         private byte HeatingTime = 80;
@@ -492,6 +493,64 @@ namespace EscPosPrinter
 
                         Write(originalBytes, 0, originalBytes.Length);
                         WriteByte(0);
+                    }
+                    break;
+                case BarcodeType.code128C:
+                    if ( data.Length > 1 && data.Length % 2 == 0)
+                    {
+                        // O padrão C imprime pares de números em um único byte.
+                        // Largura
+                        WriteByte(GS);
+                        WriteByte((byte)'w');
+                        WriteByte(2);
+
+                        // Altura
+                        WriteByte(GS);
+                        WriteByte((byte)'h');
+                        WriteByte(50);
+
+                        // Não imprime código
+                        WriteByte(GS);
+                        WriteByte((byte)'H');
+                        WriteByte(0);
+                        
+                        var length = originalBytes.Length;
+                        if (originalBytes.Length % 2 > 0)
+                        {
+                            length++;
+                        }
+
+                        var maxLength = length / 2;
+                        var counter = 0;
+                        int sum = 0;
+                        List<byte> bytes = new List<byte>();
+                        var strNum = "";
+
+                        for (int i = 0; i < maxLength; i++)
+                        {
+                            strNum = "";
+                            sum = 0;
+                            for (int j = 0; j < 2; j++)
+                            {
+                                strNum += data[counter++];
+                            }
+                            sum = int.Parse(strNum);
+                            bytes.Add((byte)sum);
+                        }
+
+
+                        WriteByte(GS);
+                        WriteByte((byte)'k');
+
+                        WriteByte(73);                         
+                        WriteByte((byte)(bytes.Count)); //length
+
+                        WriteByte(123); // {                        
+                        WriteByte((byte)'C'); // C
+
+                        Write(bytes.ToArray(), 0, bytes.Count);
+                        WriteByte(10);
+
                     }
                     break;
 
@@ -1024,5 +1083,13 @@ namespace EscPosPrinter
             WriteByte(1);
         }
 
+        public void OpenDrawer()
+        {
+            WriteByte(DLE);
+            WriteByte(DC4);
+            WriteByte(0);
+            WriteByte(2);
+
+        }
     }
 }
