@@ -66,5 +66,8 @@ namespace EscPosPrinter
         string GetPrinterModel();
 
         void SetEncodingPtBR();
+        void SetEncoding(byte v);
+        void SetFontA();
+        void SetFontB();
     }
 }

@@ -1,15 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using EscPosPrinter.PortFactory.Enums;
-using System.IO;
-using System.Text.RegularExpressions;
-using System.Drawing.Drawing2D;
-using System.Drawing.Text;
-using System.Drawing.Imaging;
-using ImageMagick;
-using EscPosPrinter;
+
 
 namespace EscPosPrinter.Console
 {
@@ -93,10 +86,18 @@ namespace EscPosPrinter.Console
                     printer.WakeUp();
                     printer.WriteLineSleepTimeMs = 200;
                     printer.Reset();
-
+                    
                     printer.HorizontalLine(203, 60, true);
-
-                    printer.WriteLine("ÁÃÂÉÊÍÎÕÒÔ|çÇ");
+                    for (byte i = 2; i < 3; i++)
+                    {
+                        
+                        printer.WriteLine($"ENCODING: {i}");
+                        printer.SetEncoding(i);
+                        printer.SetFontA();
+                        printer.WriteLine("ÁÉÍÓÚáéíóúçÇãõÃÕÊêÂâÔôÀà|");
+                        printer.SetFontB();
+                        printer.WriteLine("ÁÉÍÓÚáéíóúçÇãõÃÕÊêÂâÔôÀà|");                        
+                    }
                     printer.HorizontalLine(203, 60, true);
                     printer.LineFeed(3);
                     printer.Guillotine();

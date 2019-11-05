@@ -143,7 +143,7 @@ namespace EscPosPrinter
            
 
             Thread.Sleep(WriteLineSleepTimeMs);
-        }
+        }        
 
         public void SetInversionOn()
         {
@@ -637,8 +637,16 @@ namespace EscPosPrinter
         {
             WriteByte(ESC);
             WriteByte((byte)'t');
-            WriteByte(16);
+            WriteByte(2);// pc850
         }
+
+        public void SetEncoding(byte v)
+        {
+            WriteByte(ESC);
+            WriteByte((byte)'t');
+            WriteByte(v);
+        }
+
         private void SendEncoding(string encoding)
         {
             this.LocalEncoding = encoding;
@@ -846,12 +854,7 @@ namespace EscPosPrinter
                 Width = (int)(bitmap.Width * scale)
             };
 
-        }
-
-        public void BreakText(string text)
-        {
-
-        }
+        }       
 
         public class BitmapData
         {
@@ -1006,6 +1009,20 @@ namespace EscPosPrinter
 
             SetEncodingPtBR();
         }
-       
+
+        public void SetFontA()
+        {
+            WriteByte(ESC);
+            WriteByte((byte)'M');
+            WriteByte(0);
+        }
+        public void SetFontB()
+        {
+
+            WriteByte(ESC);
+            WriteByte((byte)'M');
+            WriteByte(1);
+        }
+
     }
 }

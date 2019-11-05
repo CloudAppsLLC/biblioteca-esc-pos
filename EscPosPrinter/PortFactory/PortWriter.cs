@@ -79,18 +79,15 @@ namespace EscPosPrinter.PortFactory
                 return;
             }
             text = text.Trim('\n').Trim('\r');
-            //byte[] originalBytes = System.Text.Encoding.ASCII.GetBytes(text);
-            var array = text.ToCharArray();
-            foreach(var c in array)
+            
+            byte[] originalBytes =  Encoding.GetEncoding(850).GetBytes(text);
+            
+            foreach(var c in originalBytes)
             {
                 WriteByte((byte)c);
             }
             return;
-
-            //byte[] originalBytes = Encoding.ASCII.GetBytes(text);
-            //byte[] outputBytes = Encoding.Convert(Encoding.ASCII, Encoding.GetEncoding(localEncoding), originalBytes);
-
-            //PortCOM.Write(outputBytes, 0, outputBytes.Length);
+            
         }
 
         public byte[] GetBytes(string text, string localEncoding)
