@@ -78,7 +78,8 @@ namespace EscPosPrinter.Console
             int x = 0;
             try
             {
-                using (IPrinter printer = new Printer(7, 2, 180, 2))
+                for ( int tentativa = 0; tentativa < 50; tentativa++ )
+                using (IPrinter printer = new Printer(12))
                 {
                 //    printer.MapSpecialCharacter['Ô'] = 147;
                 //    printer.MapSpecialCharacter['õ'] = 111;
@@ -101,13 +102,14 @@ namespace EscPosPrinter.Console
                     //printer.HorizontalLine(203, 60, true);
                     //printer.PageModeOn();
                     //printer.SetModePageArea(0, 0, 76, 50);
-                    printer.SetMarginLeft(10);
-                    printer.PrintBarcode(BarcodeType.code128, "23191014200166000166599000100880003525780002");
+                    // printer.SetMarginLeft(10);
+                    //   printer.PrintBarcode(BarcodeType.code128, "23191014200166000166599000100880003525780002");
                     //printer.PrintBarcode(BarcodeType.code128, "3525780002");
                     //printer.PrintPageMode();
                     //printer.PageModeOff();
-                    printer.LineFeed(3);
-                    printer.Guillotine();
+                    //printer.LineFeed(3);
+                    //printer.Guillotine();
+                    //printer.PrintImage(@"C:\Cosmos\NFCe\Logo\pmenos.bmp", MmToDots(180,36) , MmToDots(180,76));
 
                     //  printer.setConfigurationInitial(printer, "elgin");
 
@@ -372,7 +374,8 @@ namespace EscPosPrinter.Console
                     //   printer.LineFeed(3);
                     
                     PrinterStatus ps = new PrinterStatus();
-                    while (true)
+                    int contador = 1;
+                    while (contador-- > 0 )
                     {
 
                         System.Console.WriteLine("");
@@ -444,7 +447,7 @@ namespace EscPosPrinter.Console
                         //{
                         //    System.Console.WriteLine("Impressora sem erro");
                         //}
-                        System.Threading.Thread.Sleep(1000);
+                        System.Threading.Thread.Sleep(100);
                     }
                         //printer.Guillotine();
 
@@ -455,8 +458,9 @@ namespace EscPosPrinter.Console
 
             }
             catch (Exception ex)
-            {
+            {                
                 System.Console.WriteLine("{0} => {1}", ex.Message, ex.StackTrace);
+                System.Threading.Thread.Sleep(200);
                 x = 0;
             }
             finally

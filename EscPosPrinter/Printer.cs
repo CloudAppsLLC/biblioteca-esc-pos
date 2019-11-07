@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Drawing.Imaging;
 
+
 namespace EscPosPrinter
 {
     public enum StatusType
@@ -28,12 +29,15 @@ namespace EscPosPrinter
         private const byte FF = 12;
         private const byte DC4 = 20;
 
+
         private byte MaxPrinting = 7;
         private byte HeatingTime = 80;
         private byte HeatingInterval = 2;
         private string namePrinter = "";
 
         private Dictionary<char, byte> mapSpecialCharacter;
+
+       
 
         public Dictionary<char, byte> MapSpecialCharacter
         {
@@ -88,6 +92,7 @@ namespace EscPosPrinter
 
         private void Constructor(byte maxPrinting, byte heatingTime, byte heatingInterval, int timeout = 0)
         {
+            
             Action initialize = () =>
             {
                 try
@@ -113,7 +118,10 @@ namespace EscPosPrinter
                 catch (Exception ex)
                 {
                     if (timeout > 0) Constructor(maxPrinting, heatingTime, heatingInterval, timeout);
-                    else throw ex;
+                    else
+                    {
+                        throw ex;
+                    }
                 }
             };
 
@@ -141,10 +149,10 @@ namespace EscPosPrinter
 
             //}
             //WriteToBuffer(text, LocalEncoding);
-           
+
 
             Thread.Sleep(WriteLineSleepTimeMs);
-        }        
+        }
 
         public void SetInversionOn()
         {
@@ -376,7 +384,7 @@ namespace EscPosPrinter
             }
             WriteByte(10);
 
-        }       
+        }
 
         public void Reset()
         {
@@ -496,7 +504,7 @@ namespace EscPosPrinter
                     }
                     break;
                 case BarcodeType.code128C:
-                    if ( data.Length > 1 && data.Length % 2 == 0)
+                    if (data.Length > 1 && data.Length % 2 == 0)
                     {
                         // O padrão C imprime pares de números em um único byte.
                         // Largura
@@ -513,7 +521,7 @@ namespace EscPosPrinter
                         WriteByte(GS);
                         WriteByte((byte)'H');
                         WriteByte(0);
-                        
+
                         var length = originalBytes.Length;
                         if (originalBytes.Length % 2 > 0)
                         {
@@ -542,7 +550,7 @@ namespace EscPosPrinter
                         WriteByte(GS);
                         WriteByte((byte)'k');
 
-                        WriteByte(73);                         
+                        WriteByte(73);
                         WriteByte((byte)(bytes.Count)); //length
 
                         WriteByte(123); // {                        
@@ -796,14 +804,11 @@ namespace EscPosPrinter
 
         }
 
-        public void PrintImage(string fileName, int maxWidth = 300, Bitmap bpm = null)
+        public void PrintImage(string fileName, int maxWidth = 300, int maxPageWidth = 636, Bitmap bpm = null)
         {
-            if (bpm == null)
+            if (!File.Exists(fileName) && bpm == null)
             {
-                if (!File.Exists(fileName))
-                {
-                    throw (new Exception("File does not exist."));
-                }
+                throw (new Exception("File does not exist."));
             }
 
             BitmapData data = GetBitmapData(fileName, maxWidth, bpm);
@@ -814,11 +819,8 @@ namespace EscPosPrinter
             MemoryStream stream = new MemoryStream();
             BinaryWriter bw = new BinaryWriter(stream);
 
-            if (namePrinter != "elgin")
-            {
-                //bw.Write((char)27);
-                //bw.Write('@');
-            }
+            //bw.Write((char)27);
+            //bw.Write('@');
 
             bw.Write((char)27);
             bw.Write('3');
@@ -857,11 +859,10 @@ namespace EscPosPrinter
                     }
                 }
                 offset += 24;
-                if (offset < data.Height)
+                if (data.Width < maxPageWidth)
                 {
                     bw.Write((char)0x0A);
                 }
-
             }
             // Restore the line spacing to the default of 30 dots.
             bw.Write((char)27);
@@ -873,7 +874,7 @@ namespace EscPosPrinter
             Write(bytes, 0, bytes.Length);
         }
 
-        public BitmapData GetBitmapData(string bmpFileName, int xmultiplier = 350, Bitmap bpm = null)
+        private BitmapData GetBitmapData(string bmpFileName, int xmultiplier = 350, Bitmap bpm = null)
         {
             Bitmap bitmap = null;
             if (bpm != null)
@@ -913,7 +914,7 @@ namespace EscPosPrinter
                 Width = (int)(bitmap.Width * scale)
             };
 
-        }       
+        }
 
         public class BitmapData
         {
@@ -1025,7 +1026,7 @@ namespace EscPosPrinter
         {
             int xl, xH, yl, yH, xwl, xwH, ywl, ywH;
             // calculando x inicial
-            CalculePos(dpi, x, out xl,  out xH);
+            CalculePos(dpi, x, out xl, out xH);
             // calculando y inicial
             CalculePos(dpi, y, out yl, out yH);
             // calculando largura 
@@ -1059,7 +1060,7 @@ namespace EscPosPrinter
 
             int larguraEmDots = MmToDots(dpi, largura);
             int laguraFonte = fontSmall ? 9 : 12;
-            int qtdCaracters = larguraEmDots / laguraFonte;            
+            int qtdCaracters = larguraEmDots / laguraFonte;
             for (int i = 0; i < qtdCaracters; i++)
             {
                 WriteByte(0xC4);
@@ -1091,5 +1092,6 @@ namespace EscPosPrinter
             WriteByte(2);
 
         }
+
     }
 }

@@ -1,13 +1,25 @@
-﻿using System;
+﻿using Microsoft.Win32.SafeHandles;
+using System;
 using System.IO;
 using System.IO.Ports;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace EscPosPrinter.PortFactory
 {
+    public enum PortStatus
+    {
+        Unauthorized,
+        PortNotFound,
+        OK
+
+    }
     public class PortWriter : IDisposable
     {
         private SerialPort PortCOM;
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        internal static extern SafeFileHandle CreateFile(string lpFileName, int dwDesiredAccess, int dwShareMode, IntPtr securityAttrs, int dwCreationDisposition, int dwFlagsAndAttributes, IntPtr hTemplateFile);
 
         public bool Initialized { get; private set; }
         public Exception InternalException { get; private set; }
@@ -25,22 +37,63 @@ namespace EscPosPrinter.PortFactory
             InternalExceptionCustomMessage = text;
         }
 
+        private PortStatus CheckPortStatus(string portName )
+        {
+            int tstInt;
+
+            if (!portName.ToLower().Contains("com") && int.TryParse(portName, out tstInt) )
+            {
+                portName = "COM" + tstInt.ToString();
+            }
+            int dwFlagsAndAttributes = 0x40000000;
+            
+            if (Environment.OSVersion.Platform == PlatformID.Win32Windows)
+            {
+                dwFlagsAndAttributes = 0x80;                
+            }
+          
+            SafeFileHandle hFile = CreateFile(@"\\.\" + portName, -1073741824, 0, IntPtr.Zero, 3, dwFlagsAndAttributes, IntPtr.Zero);
+            if (hFile.IsInvalid)
+            {
+                int error = Marshal.GetLastWin32Error();
+                hFile.Close();
+                if ( error == 5) // Unauthorized error
+                {                    
+                    return PortStatus.Unauthorized;
+                }
+
+                return PortStatus.PortNotFound;
+                
+                
+            }
+            hFile.Close();
+            return PortStatus.OK;
+        }
+
         public PortWriter(string serialPort)
         {
-            SerialPort printerPort = new SerialPort(serialPort, 9600);
+            SerialPort printerPort = new SerialPort(serialPort, 9600);                     
 
             if (printerPort != null)
             {
                 if (printerPort.IsOpen)
                 {
                     printerPort.Close();
+                    System.Threading.Thread.Sleep(200);
                 }
             }
 
             try
             {
-                printerPort.Open();
-                Initialized = true;
+                while (true)
+                {
+                    if ( CheckPortStatus(serialPort) != PortStatus.Unauthorized)
+                    {
+                        printerPort.Open();
+                        Initialized = true;
+                        break;
+                    }
+                }                
             }
             catch (InvalidOperationException ioex)
             {
@@ -137,6 +190,7 @@ namespace EscPosPrinter.PortFactory
         public void Dispose()
         {
             PortCOM.Close();
+            System.Threading.Thread.Sleep(200);
         }
     }
 }

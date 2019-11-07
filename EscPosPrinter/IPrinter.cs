@@ -44,7 +44,7 @@ namespace EscPosPrinter
         void PrintBarcode(BarcodeType type, string data);        
         void SetLargeBarcode(int large);
         void SetBarcodeLeftSpace(byte spacingDots);
-        void PrintImage(string image, int maxWidth = 350, Bitmap bpm = null);
+        void PrintImage(string image, int maxWidth = 350, int maxPageWidth=636, Bitmap bpm = null);
         void SetPrintingParameters(byte maxPrinting, byte heatingTime, byte heatingInterval);
         void Sleep();
         void WakeUp();
