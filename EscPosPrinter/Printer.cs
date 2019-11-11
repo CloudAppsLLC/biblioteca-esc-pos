@@ -505,22 +505,23 @@ namespace EscPosPrinter
                     break;
                 case BarcodeType.code128C:
                     if (data.Length > 1 && data.Length % 2 == 0)
-                    {
+                    {   
+
                         // O padrão C imprime pares de números em um único byte.
                         // Largura
                         WriteByte(GS);
                         WriteByte((byte)'w');
-                        WriteByte(2);
+                        WriteByte(1);
 
                         // Altura
                         WriteByte(GS);
                         WriteByte((byte)'h');
-                        WriteByte(50);
+                        WriteByte(75);
 
                         // Não imprime código
                         WriteByte(GS);
                         WriteByte((byte)'H');
-                        WriteByte(0);
+                        WriteByte(1);
 
                         var length = originalBytes.Length;
                         if (originalBytes.Length % 2 > 0)
@@ -549,15 +550,20 @@ namespace EscPosPrinter
 
                         WriteByte(GS);
                         WriteByte((byte)'k');
+                        WriteByte(73); // I
 
-                        WriteByte(73);
-                        WriteByte((byte)(bytes.Count)); //length
+                        WriteByte((byte)(bytes.Count + 2)); //length
 
                         WriteByte(123); // {                        
                         WriteByte((byte)'C'); // C
 
                         Write(bytes.ToArray(), 0, bytes.Count);
-                        WriteByte(10);
+                        WriteByte(0);
+
+                        WriteByte(GS);
+                        WriteByte((byte)'P');
+                        WriteByte(0);
+                        WriteByte(0);
 
                     }
                     break;
@@ -1016,8 +1022,8 @@ namespace EscPosPrinter
         static void CalculePos(int dpi, double valorEmMilimetro, out int l, out int h)
         {
             int valorTotal = MmToDots(dpi, valorEmMilimetro);
-            int divisao = valorTotal > 256 ? valorTotal / 256 : 0;
-            int resto = valorTotal - (divisao * 256);
+            int divisao = valorTotal / 256;
+            int resto = valorTotal % 256;
             h = divisao;
             l = resto;
         }
