@@ -37,7 +37,7 @@ namespace EscPosPrinter
 
         private Dictionary<char, byte> mapSpecialCharacter;
 
-       
+
 
         public Dictionary<char, byte> MapSpecialCharacter
         {
@@ -92,7 +92,7 @@ namespace EscPosPrinter
 
         private void Constructor(byte maxPrinting, byte heatingTime, byte heatingInterval, int timeout = 0)
         {
-            
+
             Action initialize = () =>
             {
                 try
@@ -505,7 +505,7 @@ namespace EscPosPrinter
                     break;
                 case BarcodeType.code128C:
                     if (data.Length > 1 && data.Length % 2 == 0)
-                    {   
+                    {
 
                         // O padrão C imprime pares de números em um único byte.
                         // Largura
@@ -865,10 +865,10 @@ namespace EscPosPrinter
                     }
                 }
                 offset += 24;
-                if (data.Width < maxPageWidth)
-                {
-                    bw.Write((char)0x0A);
-                }
+                // if (data.Width < maxPageWidth)
+
+                bw.Write((char)0x0A);
+
             }
             // Restore the line spacing to the default of 30 dots.
             bw.Write((char)27);
