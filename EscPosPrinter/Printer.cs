@@ -37,8 +37,6 @@ namespace EscPosPrinter
 
         private Dictionary<char, byte> mapSpecialCharacter;
 
-
-
         public Dictionary<char, byte> MapSpecialCharacter
         {
             get
@@ -117,12 +115,16 @@ namespace EscPosPrinter
                 }
                 catch (Exception ex)
                 {
-                    if (timeout > 0) Constructor(maxPrinting, heatingTime, heatingInterval, timeout);
+                    if (timeout > 0)
+                        Constructor(maxPrinting, heatingTime, heatingInterval, timeout);
+
                     else
                     {
                         throw ex;
                     }
+
                 }
+
             };
 
             if (timeout > 0)
@@ -133,25 +135,27 @@ namespace EscPosPrinter
             {
                 initialize.Invoke();
             }
+
         }
+
+
         public void WriteLine(string text)
         {
-            WriteToBuffer(text, LocalEncoding);
+            WriteToBuffer(text, LocalEncoding, mapSpecialCharacter);
             WriteByte(10);
-            //for (var i = 0; i < text.Length; i++)
-            //{
-            //    if (!MapSpecialCharacter.ContainsKey(text[i]))
-            //    {
-            //        WriteToBuffer(text[i].ToString());
-            //        continue;
-            //    }
-            //    WriteByte(MapSpecialCharacter[text[i]]);
+            /*for (var i = 0; i < text.Length; i++)
+            {
+                if (!MapSpecialCharacter.ContainsKey(text[i]))
+                {
+                    WriteToBuffer(text[i].ToString());
+                    continue;
+                }
+                WriteByte(MapSpecialCharacter[text[i]]);
 
-            //}
-            //WriteToBuffer(text, LocalEncoding);
+            }
+            WriteToBuffer(text, LocalEncoding);*/
 
-
-            Thread.Sleep(WriteLineSleepTimeMs);
+            //Thread.Sleep(WriteLineSleepTimeMs);
         }
 
         public void SetInversionOn()
@@ -692,6 +696,16 @@ namespace EscPosPrinter
             WriteByte(1);
         }
 
+        public void setUnderline(byte value = 0)
+        {
+            //desligar - 0
+            //fraco - 1
+            //forte - 2
+            WriteByte(ESC);
+            WriteByte(45);
+            WriteByte(value);
+        }
+
         public override string ToString()
         {
             return string.Format("Printer:\n\tSerialPort={0},\n\tMaxPrinting={1}," +
@@ -727,8 +741,6 @@ namespace EscPosPrinter
 
             return;
 
-
-
             switch (encoding)
             {
                 case "IBM437":
@@ -759,7 +771,7 @@ namespace EscPosPrinter
             return originalValue &= (byte)(~(1 << bit));
         }
 
-        public void WriteToBuffer(string text) => WriteToBuffer(text, LocalEncoding);
+        public void WriteToBuffer(string text) => WriteToBuffer(text, LocalEncoding, mapSpecialCharacter);
 
         public void SetMarginLeft(byte value)
         {
@@ -867,8 +879,10 @@ namespace EscPosPrinter
                 offset += 24;
                 // if (data.Width < maxPageWidth)
 
+                //if (data.Width < maxPageWidth)
+                //{
                 bw.Write((char)0x0A);
-
+                //}
             }
             // Restore the line spacing to the default of 30 dots.
             bw.Write((char)27);
@@ -952,12 +966,14 @@ namespace EscPosPrinter
             }
             else
             {
+                //printer.SetAlignLeft();
                 printer.SetEspaceBetweenLines(45);
                 printer.SetMarginLeft(20, 0);
                 printer.SetFontSize(5);
                 MapSpecialCharacter['Ô'] = 140;
                 MapSpecialCharacter['Õ'] = 153;
                 MapSpecialCharacter['õ'] = 148;
+                MapSpecialCharacter['Á'] = 181;
 
             }
         }
@@ -1096,6 +1112,21 @@ namespace EscPosPrinter
             WriteByte(DC4);
             WriteByte(0);
             WriteByte(2);
+
+        }
+
+        public void PrintTextTag(IPrinter printer, string texto)
+        {
+            texto = texto.Replace("<l></l>", "@");
+            string[] TextoTag = texto.Split('@');
+
+            for (int i = 0; i < TextoTag.Length; i++)
+            {
+                var actionsForPrinter = new Interpreter(printer).GenerateActionsForPrinter(TextoTag[i].Trim());
+                printer.LineFeed();
+                printer.SetAlignLeft();
+                //ExecuteActions(actionsForPrinter);
+            }
 
         }
 

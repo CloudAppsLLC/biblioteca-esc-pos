@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32.SafeHandles;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Ports;
 using System.Runtime.InteropServices;
@@ -37,34 +38,33 @@ namespace EscPosPrinter.PortFactory
             InternalExceptionCustomMessage = text;
         }
 
-        private PortStatus CheckPortStatus(string portName )
+        private PortStatus CheckPortStatus(string portName)
         {
             int tstInt;
 
-            if (!portName.ToLower().Contains("com") && int.TryParse(portName, out tstInt) )
+            if (!portName.ToLower().Contains("com") && int.TryParse(portName, out tstInt))
             {
                 portName = "COM" + tstInt.ToString();
             }
             int dwFlagsAndAttributes = 0x40000000;
-            
+
             if (Environment.OSVersion.Platform == PlatformID.Win32Windows)
             {
-                dwFlagsAndAttributes = 0x80;                
+                dwFlagsAndAttributes = 0x80;
             }
-          
+
             SafeFileHandle hFile = CreateFile(@"\\.\" + portName, -1073741824, 0, IntPtr.Zero, 3, dwFlagsAndAttributes, IntPtr.Zero);
             if (hFile.IsInvalid)
             {
                 int error = Marshal.GetLastWin32Error();
                 hFile.Close();
-                if ( error == 5) // Unauthorized error
-                {                    
+                if (error == 5) // Unauthorized error
+                {
                     return PortStatus.Unauthorized;
                 }
 
                 return PortStatus.PortNotFound;
-                
-                
+
             }
             hFile.Close();
             return PortStatus.OK;
@@ -72,7 +72,7 @@ namespace EscPosPrinter.PortFactory
 
         public PortWriter(string serialPort)
         {
-            SerialPort printerPort = new SerialPort(serialPort, 9600);                     
+            SerialPort printerPort = new SerialPort(serialPort, 9600);
 
             if (printerPort != null)
             {
@@ -87,13 +87,13 @@ namespace EscPosPrinter.PortFactory
             {
                 while (true)
                 {
-                    if ( CheckPortStatus(serialPort) != PortStatus.Unauthorized)
+                    if (CheckPortStatus(serialPort) != PortStatus.Unauthorized)
                     {
                         printerPort.Open();
                         Initialized = true;
                         break;
                     }
-                }                
+                }
             }
             catch (InvalidOperationException ioex)
             {
@@ -125,22 +125,53 @@ namespace EscPosPrinter.PortFactory
             PortCOM.Write(tempArray, 0, 1);
         }
 
-        public void WriteToBuffer(string text, string localEncoding)
+        public void WriteToBuffer(string text, string localEncoding, Dictionary<char, byte> mapSpecialCharacter = null)
         {
-            if ( text == null)
+
+            if (mapSpecialCharacter != null)
             {
-                return;
+                for (var i = 0; i < text.Length; i++)
+                {
+                    if (mapSpecialCharacter.ContainsKey(text[i]))
+                    {
+                        WriteByte(mapSpecialCharacter[text[i]]);
+                        continue;
+                    }
+                    else
+                    {
+                        WriteByte((byte)text[i]);
+                    }
+
+                }
             }
-            text = text.Trim('\n').Trim('\r');
-            
-            byte[] originalBytes =  Encoding.GetEncoding(850).GetBytes(text);
-            
-            foreach(var c in originalBytes)
+            else
+            {
+                if (text == null)
+                {
+                    return;
+                }
+                text = text.Trim('\n').Trim('\r');
+
+                byte[] originalBytes = Encoding.GetEncoding(850).GetBytes(text);
+
+                foreach (var c in originalBytes)
+                {
+                    WriteByte((byte)c);
+                }
+
+            }
+
+            return;
+
+        }
+
+        public void WriteToBuffer(byte[] originalBytes, string localEncoding)
+        {
+            foreach (var c in originalBytes)
             {
                 WriteByte((byte)c);
             }
             return;
-            
         }
 
         public byte[] GetBytes(string text, string localEncoding)
@@ -170,14 +201,14 @@ namespace EscPosPrinter.PortFactory
 
         public int ReadChar()
         {
-            int oldTimeout = PortCOM.ReadTimeout;            
-            
+            int oldTimeout = PortCOM.ReadTimeout;
+
             try
             {
                 PortCOM.ReadTimeout = 10;
                 return PortCOM.ReadChar();
             }
-            catch( TimeoutException)
+            catch (TimeoutException)
             {
                 return -1;
             }

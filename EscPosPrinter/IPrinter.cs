@@ -65,10 +65,11 @@ namespace EscPosPrinter
         void SetModePageArea(double x, double y, double width, double height, int dpi = 203);
         void setConfigurationInitial(IPrinter printer, string nameprinter = "sweda");
         string GetPrinterModel();
-
         void SetEncodingPtBR();
         void SetEncoding(byte v);
         void SetFontA();
         void SetFontB();
+        void PrintTextTag(IPrinter printer, string texto);
+        void setUnderline(byte value = 0);
     }
 }
