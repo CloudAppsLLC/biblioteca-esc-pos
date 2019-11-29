@@ -7,10 +7,11 @@ namespace EscPosPrinter
 {
     public interface IPrinter : IDisposable
     {
+        Dictionary<char, byte> MapSpecialCharacter { get; set; }
+        void OpenDrawer();
         int PictureLineSleepTimeMs { get; set; }
         int WriteLineSleepTimeMs { get; set; }
         string LocalEncoding { get; set; }
-
         void WriteLine(string text);
         void WriteLine(string text, byte style);
         void WriteLine(string text, PrintingStyle style);
@@ -36,14 +37,14 @@ namespace EscPosPrinter
         void SetAlignLeft();
         void SetAlignCenter();
         void SetAlignRight();
-        void HorizontalLine(int length);
+        void HorizontalLine(string nameprinter);
+        void HorizontalLine(int dpi, double largura, bool fontSmall);
         void ExecuteActions(IList<Action> actionsForPrinter);
         void Reset();
-        void PrintBarcode(BarcodeType type, string data);
-        void SetLargeBarcode(bool large);
+        void PrintBarcode(BarcodeType type, string data);        
+        void SetLargeBarcode(int large);
         void SetBarcodeLeftSpace(byte spacingDots);
-        void PrintImage(string fileName);
-        void PrintImage(Bitmap image);
+        void PrintImage(string image, int maxWidth = 350, int maxPageWidth=636, Bitmap bpm = null);
         void SetPrintingParameters(byte maxPrinting, byte heatingTime, byte heatingInterval);
         void Sleep();
         void WakeUp();
@@ -51,5 +52,24 @@ namespace EscPosPrinter
         void WriteToBuffer(string text);
         void Guillotine();
         void SetLetterSpacing(byte letterSpacing);
+        void PrintQrCode(string data);
+        void SetHeigthBarcode(int heigth);
+        void SetFontSize(byte height = 1);
+        void SetEspaceBetweenLines(byte space = 0);
+        void SetMarginLeft(byte value = 10, byte margin = 2);
+        void SetColumn(byte column, byte value);
+        void NextTab();
+        void PageModeOn();
+        void PageModeOff();
+        void PrintPageMode();        
+        void SetModePageArea(double x, double y, double width, double height, int dpi = 203);
+        void setConfigurationInitial(IPrinter printer, string nameprinter = "sweda");
+        string GetPrinterModel();
+        void SetEncodingPtBR();
+        void SetEncoding(byte v);
+        void SetFontA();
+        void SetFontB();
+        void PrintTextTag(IPrinter printer, string texto);
+        void setUnderline(byte value = 0);
     }
 }

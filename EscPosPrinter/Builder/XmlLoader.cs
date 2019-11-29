@@ -8,7 +8,7 @@ namespace EscPosPrinter.Builder
     {
         public static XPathNodeIterator Load(string content)
         {
-            var bytes = Encoding.ASCII.GetBytes($"<root>{content}</root>");
+            var bytes = Encoding.UTF8.GetBytes($"<root>{content}</root>");
             var doc = new XPathDocument(new MemoryStream(bytes));
             var xml = doc.CreateNavigator();
             return xml.SelectSingleNode("root").SelectChildren(XPathNodeType.All);

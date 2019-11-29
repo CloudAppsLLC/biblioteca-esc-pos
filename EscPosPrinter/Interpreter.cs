@@ -15,17 +15,28 @@ namespace EscPosPrinter
 
         public IList<Action> GenerateActionsForPrinter(string text)
         {
+            bool isCenter = false;
             var actions = new List<Action>();
             try
             {
                 var elements = XmlLoader.Load(text);
                 var commands = Transpilator.TranspileElements(elements);
 
-                actions.Add(() => Printer.WakeUp());
-                actions.Add(() => Printer.Reset());
-                actions.Add(() => Printer.SetLineSpacing(2));
-                actions.Add(() => Printer.SetLetterSpacing(2));
-                actions.Add(() => Printer.SetMarginLeft(20)); // if elgin
+                if (!isCenter)
+                {
+                    for (int i = 0; i < commands.Count; i++)
+                    {
+
+                        if (commands[i].Tag != null)
+                        {
+                            if (commands[i].Tag.Contains("ce"))
+                            {
+                                Printer.SetAlignCenter();
+                                isCenter = true;
+                            }
+                        }
+                    }
+                }
 
                 foreach (var command in commands)
                 {
@@ -40,61 +51,84 @@ namespace EscPosPrinter
                             case "/ad":
                                 actions.Add(() => Printer.SetAlignLeft());
                                 break;
+                            case "s":
+                                Printer.setUnderline(2);
+                                Printer.WriteToBuffer(command.Value);
+                                break;
+                            case "/s":
+                                Printer.setUnderline(0);
+                                break;
 
                             case "b":
-                                actions.Add(() => Printer.BoldOn());
-                                actions.Add(() => Printer.WriteLine(command.Value));
+                                //actions.Add(() => Printer.BoldOn());
+                                //actions.Add(() => Printer.WriteToBuffer(" " + command.Value));
+                                Printer.BoldOn();
+                                Printer.WriteToBuffer(" " + command.Value);
                                 break;
                             case "/b":
-                                actions.Add(() => Printer.BoldOff());
+                                //actions.Add(() => Printer.BoldOff());
+                                Printer.BoldOff();
                                 break;
 
                             case "c":
-                                actions.Add(() => Printer.SetLineSpacing(0));
-                                actions.Add(() => Printer.SetLetterSpacing(0));
-                                actions.Add(() => Printer.WriteLine(command.Value));
+                                //actions.Add(() => Printer.WriteToBuffer(command.Value + " "));
+                                Printer.WriteToBuffer(command.Value + " ");
                                 break;
                             case "/c":
-                                actions.Add(() => Printer.SetLineSpacing(2));
-                                actions.Add(() => Printer.SetLetterSpacing(2));
                                 break;
 
                             case "ce":
-                                actions.Add(() => Printer.SetAlignCenter());
-                                actions.Add(() => Printer.WriteLine(command.Value));
+                                //actions.Add(() => Printer.SetAlignCenter());
+                                //actions.Add(() => Printer.WriteLine(command.Value));
+                                Printer.SetAlignCenter();
+                                Printer.WriteToBuffer(command.Value);
                                 break;
                             case "/ce":
-                                actions.Add(() => Printer.SetAlignLeft());
+                                //actions.Add(() => Printer.SetAlignLeft());
+                                Printer.SetAlignLeft();
                                 break;
 
                             case "l":
-                                actions.Add(() => Printer.LineFeed());
+                                //actions.Add(() => Printer.LineFeed());
+                                Printer.LineFeed();
                                 break;
                             case "/l":
                                 break;
 
                             case "sl":
-                                actions.Add(() => Printer.LineFeed(byte.Parse(command.Value)));
+                                //actions.Add(() => Printer.LineFeed(byte.Parse(command.Value)));
+                                Printer.LineFeed(byte.Parse(command.Value));
                                 break;
                             case "/sl":
                                 break;
 
                             case "gui":
-                                actions.Add(() => Printer.Guillotine());
+                                //actions.Add(() => Printer.Guillotine());
+                                Printer.Guillotine();
                                 break;
                             case "/gui":
                                 break;
 
                             default:
-                                actions.Add(() => Printer.WriteLine(command.Value));
+                                //actions.Add(() => Printer.WriteToBuffer(command.Value));
+                                Printer.WriteToBuffer(command.Value);
                                 break;
                         }
                     }
                     else
                     {
-                        actions.Add(() => Printer.WriteLine(command.Value));
+                        //actions.Add(() => Printer.WriteToBuffer(command.Value));
+                        Printer.WriteToBuffer(command.Value);
                     }
+
+                    if (isCenter)
+                    {
+                        Printer.SetAlignLeft();
+                    }
+
                 }
+
+
 
                 return actions;
             }

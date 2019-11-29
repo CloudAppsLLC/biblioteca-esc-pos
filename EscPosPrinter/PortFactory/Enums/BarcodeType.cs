@@ -12,6 +12,7 @@
         code93 = 7,
         code128 = 8,
         code11 = 9,
-        msi = 10
+        msi = 10,
+        code128C = 11
     }
 }
