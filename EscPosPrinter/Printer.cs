@@ -1117,18 +1117,10 @@ namespace EscPosPrinter
 
         public void PrintTextTag(IPrinter printer, string texto)
         {
-            texto = texto.Replace("<l></l>", "@");
-            string[] TextoTag = texto.Split('@');
-
-            for (int i = 0; i < TextoTag.Length; i++)
-            {
-                var actionsForPrinter = new Interpreter(printer).GenerateActionsForPrinter(TextoTag[i].Trim());
-                printer.LineFeed();
-                printer.SetAlignLeft();
-                //ExecuteActions(actionsForPrinter);
-            }
-
+            var actionsForPrinter = new Interpreter(printer).GenerateActionsForPrinter(texto.Trim());
+            ExecuteActions(actionsForPrinter);
+            printer.LineFeed();
+            printer.SetAlignLeft();
         }
-
     }
 }
