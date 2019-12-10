@@ -7,7 +7,7 @@ namespace EscPosPrinter
 {
     public class PrinterStatus
     {
-        public bool SinalGaveta { get; set; }        
+        public bool SinalGaveta { get; set; }
         public bool TampaAberta { get; set; }
         public bool SemPapel { get; set; }
         public bool PoucoPapel { get; set; }
