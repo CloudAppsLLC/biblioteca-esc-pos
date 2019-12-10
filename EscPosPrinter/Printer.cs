@@ -1118,6 +1118,8 @@ namespace EscPosPrinter
         public void PrintTextTag(IPrinter printer, string texto)
         {
             texto = texto.Replace("<l></l>", "@");
+            texto = texto.Replace("<sl>1</sl>","@");
+            texto = texto.Replace("<sl> 1 </sl>", "@");
             string[] TextoTag = texto.Split('@');
 
             for (int i = 0; i < TextoTag.Length; i++)

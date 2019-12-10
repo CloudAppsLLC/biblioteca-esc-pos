@@ -63,7 +63,7 @@ namespace EscPosPrinter
                                 //actions.Add(() => Printer.BoldOn());
                                 //actions.Add(() => Printer.WriteToBuffer(" " + command.Value));
                                 Printer.BoldOn();
-                                Printer.WriteToBuffer(" " + command.Value);
+                                Printer.WriteToBuffer(command.Value);
                                 break;
                             case "/b":
                                 //actions.Add(() => Printer.BoldOff());
