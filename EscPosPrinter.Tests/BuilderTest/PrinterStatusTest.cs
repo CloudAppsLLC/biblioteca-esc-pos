@@ -1,6 +1,5 @@
 ﻿using Xunit;
 using Xunit.Extensions;
-using EscPosPrinter;
 
 namespace EscPosPrinter.Tests.BuilderTest
 {
