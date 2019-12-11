@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using EscPosPrinter.PortFactory.Enums;
 
-
 namespace EscPosPrinter.Console
 {
     class Program
@@ -14,7 +13,7 @@ namespace EscPosPrinter.Console
         static void Main(string[] args)
         {
             //watch.Start();
-            //TesteInterpretador(3);
+            TesteInterpretador(5);
             //watch.Stop();
             //System.Console.WriteLine($"Tempo decorrido: {watch.ElapsedMilliseconds}ms");
             //System.Console.WriteLine(); 
@@ -29,19 +28,55 @@ namespace EscPosPrinter.Console
             {
                 using (IPrinter printer = new Printer(port))
                 {
-                    var xml = @"<ce>centralizado</ce>
-                                <l></l>
-                                normal
-                                <ad>
-                                    a direita
-                                    <sl>30</sl>
-                                    <b>negrito e a direita</b>
-                                </ad>
-                                <b>apenas negrito</b>
-                                <c>condensado</c>
-                                <ad>normal a direita</ad>
-                                <sl>30</sl>
-                                <gui/>";
+                    var xml = @"02
+	<c>
+        <l></l>
+		a
+        <l></l>
+		<ce>
+			<b>NÃO-FISCAL</b>
+		</ce>
+		<l></l>
+		Loja: 0052 - FOR57-DesMoreira2-CE
+		<l></l>
+		De :02/12/2019 a 02/12/2019
+		<l></l>
+		Operador: 3071   - FRANCISCO ANTONIO DOS SANTOS  
+		<l></l>
+		Finalizador    Qtd.Docs    Valor Liquido
+		<l></l>
+		-----------    ---------  -------------
+		<l></l>
+		DINHEIRO            -         45,44
+		<l></l>
+		-----------    ---------  -------------
+		<l></l>Sub-Tot.(1)         0         45,44       
+		<l></l>
+		-----------    ---------  -------------
+		<l></l>
+		Faturamento Ecf:              45,44
+		<l></l>
+		-----------    ---------  -------------
+		<l></l>
+		--------------------------------------------------FIM
+		<l></l>
+	</c>
+	<c>
+		<l></l>
+		<l></l>
+	</c>
+	__________________________________________
+	<l></l>
+	CAIXA: 084  LOJA: 52
+	<l></l>
+	<sl>1</sl>
+	<gui></gui>
+	<l></l>
+";
+
+                    printer.SetMarginLeft(0);
+                    printer.SetFontB();
+                    printer.SetAlignLeft();
 
                     var actionsForPrinter = new Interpreter(printer).GenerateActionsForPrinter(xml);
 
@@ -79,7 +114,7 @@ namespace EscPosPrinter.Console
             try
             {
                 for (int tentativa = 0; tentativa < 1; tentativa++)
-                    using (IPrinter printer = new Printer(4))
+                    using (IPrinter printer = new Printer(5))
                     {
                         printer.WakeUp();
                         printer.WriteLineSleepTimeMs = 200;

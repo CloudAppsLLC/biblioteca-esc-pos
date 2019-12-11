@@ -41,10 +41,10 @@ namespace EscPosPrinter
         void HorizontalLine(int dpi, double largura, bool fontSmall);
         void ExecuteActions(IList<Action> actionsForPrinter);
         void Reset();
-        void PrintBarcode(BarcodeType type, string data);        
+        void PrintBarcode(BarcodeType type, string data);
         void SetLargeBarcode(int large);
         void SetBarcodeLeftSpace(byte spacingDots);
-        void PrintImage(string image, int maxWidth = 350, int maxPageWidth=636, Bitmap bpm = null);
+        void PrintImage(string image, int maxWidth = 350, int maxPageWidth = 636, Bitmap bpm = null);
         void SetPrintingParameters(byte maxPrinting, byte heatingTime, byte heatingInterval);
         void Sleep();
         void WakeUp();
@@ -61,15 +61,14 @@ namespace EscPosPrinter
         void NextTab();
         void PageModeOn();
         void PageModeOff();
-        void PrintPageMode();        
+        void PrintPageMode();
         void SetModePageArea(double x, double y, double width, double height, int dpi = 203);
-        void setConfigurationInitial(IPrinter printer, string nameprinter = "sweda");
+        void SetConfigurationInitial(IPrinter printer, string nameprinter = "sweda");
         string GetPrinterModel();
         void SetEncodingPtBR();
         void SetEncoding(byte v);
         void SetFontA();
         void SetFontB();
-        void PrintTextTag(IPrinter printer, string texto);
-        void setUnderline(byte value = 0);
+        void SetUnderline(byte value = 0);
     }
 }

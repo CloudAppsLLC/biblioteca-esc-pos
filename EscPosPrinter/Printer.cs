@@ -1,14 +1,12 @@
 ﻿using EscPosPrinter.PortFactory;
 using EscPosPrinter.PortFactory.Enums;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Text;
 using System.Threading;
-using System.Collections.Generic;
-using System.Collections;
-using System.Drawing.Imaging;
-
 
 namespace EscPosPrinter
 {
@@ -28,7 +26,6 @@ namespace EscPosPrinter
         private const byte EOT = 4;
         private const byte FF = 12;
         private const byte DC4 = 20;
-
 
         private byte MaxPrinting = 7;
         private byte HeatingTime = 80;
@@ -90,7 +87,6 @@ namespace EscPosPrinter
 
         private void Constructor(byte maxPrinting, byte heatingTime, byte heatingInterval, int timeout = 0)
         {
-
             Action initialize = () =>
             {
                 try
@@ -122,9 +118,7 @@ namespace EscPosPrinter
                     {
                         throw ex;
                     }
-
                 }
-
             };
 
             if (timeout > 0)
@@ -135,9 +129,7 @@ namespace EscPosPrinter
             {
                 initialize.Invoke();
             }
-
         }
-
 
         public void WriteLine(string text)
         {
@@ -387,7 +379,6 @@ namespace EscPosPrinter
                 WriteByte(0xC4);
             }
             WriteByte(10);
-
         }
 
         public void Reset()
@@ -510,7 +501,6 @@ namespace EscPosPrinter
                 case BarcodeType.code128C:
                     if (data.Length > 1 && data.Length % 2 == 0)
                     {
-
                         // O padrão C imprime pares de números em um único byte.
                         // Largura
                         WriteByte(GS);
@@ -551,7 +541,6 @@ namespace EscPosPrinter
                             bytes.Add((byte)sum);
                         }
 
-
                         WriteByte(GS);
                         WriteByte((byte)'k');
                         WriteByte(73); // I
@@ -568,7 +557,6 @@ namespace EscPosPrinter
                         WriteByte((byte)'P');
                         WriteByte(0);
                         WriteByte(0);
-
                     }
                     break;
 
@@ -664,13 +652,11 @@ namespace EscPosPrinter
             WriteByte(68);
             WriteByte(column);
             WriteByte(value);
-
         }
 
         public void NextTab()
         {
             WriteByte(9);
-
         }
 
         public void SetPrintingParameters(byte maxPrinting, byte heatingTime, byte heatingInterval)
@@ -696,7 +682,7 @@ namespace EscPosPrinter
             WriteByte(1);
         }
 
-        public void setUnderline(byte value = 0)
+        public void SetUnderline(byte value = 0)
         {
             //desligar - 0
             //fraco - 1
@@ -819,7 +805,6 @@ namespace EscPosPrinter
             Write(storeQR, 0, storeQR.Length);
             Write(originalBytes, 0, originalBytes.Length);
             Write(printQR, 0, printQR.Length);
-
         }
 
         public void PrintImage(string fileName, int maxWidth = 300, int maxPageWidth = 636, Bitmap bpm = null)
@@ -933,7 +918,6 @@ namespace EscPosPrinter
                 Height = (int)(bitmap.Height * scale),
                 Width = (int)(bitmap.Width * scale)
             };
-
         }
 
         public class BitmapData
@@ -956,7 +940,7 @@ namespace EscPosPrinter
                 set;
             }
         }
-        public void setConfigurationInitial(IPrinter printer, string nameprinter = "sweda")
+        public void SetConfigurationInitial(IPrinter printer, string nameprinter = "sweda")
         {
             printer.Reset();
             if (nameprinter.Equals("sweda"))
@@ -974,7 +958,6 @@ namespace EscPosPrinter
                 MapSpecialCharacter['Õ'] = 153;
                 MapSpecialCharacter['õ'] = 148;
                 MapSpecialCharacter['Á'] = 181;
-
             }
         }
 
@@ -1057,8 +1040,8 @@ namespace EscPosPrinter
             CalculePos(dpi, height, out ywl, out ywH);
             // Enviando o comando
             SetModePageArea(xl, xH, yl, yH, xwl, xwH, ywl, ywH);
-
         }
+
         private void SetModePageArea(int xL, int xH, int yL, int yH, int dxL, int dxH, int dyL, int dyH)
         {
             WriteByte(ESC);
@@ -1100,7 +1083,6 @@ namespace EscPosPrinter
         }
         public void SetFontB()
         {
-
             WriteByte(ESC);
             WriteByte((byte)'M');
             WriteByte(1);
@@ -1112,23 +1094,6 @@ namespace EscPosPrinter
             WriteByte(DC4);
             WriteByte(0);
             WriteByte(2);
-
         }
-
-        public void PrintTextTag(IPrinter printer, string texto)
-        {
-            texto = texto.Replace("<l></l>", "@");
-            string[] TextoTag = texto.Split('@');
-
-            for (int i = 0; i < TextoTag.Length; i++)
-            {
-                var actionsForPrinter = new Interpreter(printer).GenerateActionsForPrinter(TextoTag[i].Trim());
-                printer.LineFeed();
-                printer.SetAlignLeft();
-                //ExecuteActions(actionsForPrinter);
-            }
-
-        }
-
     }
 }
