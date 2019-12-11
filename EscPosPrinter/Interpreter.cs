@@ -36,11 +36,11 @@ namespace EscPosPrinter
                             actions.Add(() => Printer.SetAlignLeft());
                             break;
                         case "s":
-                            actions.Add(() => Printer.setUnderline(2));
+                            actions.Add(() => Printer.SetUnderline(2));
                             actions.Add(() => Printer.WriteToBuffer(command.Value));
                             break;
                         case "/s":
-                            actions.Add(() => Printer.setUnderline(0));
+                            actions.Add(() => Printer.SetUnderline(0));
                             break;
 
                         case "b":
