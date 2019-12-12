@@ -13,14 +13,12 @@ namespace EscPosPrinter
             Printer = printer;
         }
 
-        public IList<Action> GenerateActionsForPrinter(string text)
+        public void ExecuteInterpretationForPrinter(string text)
         {
-            var actions = new List<Action>();
-
             var elements = XmlLoader.Load(text);
             var commands = Transpilator.TranspileElements(elements);
 
-            actions.Add(() => Printer.WakeUp());
+            Printer.WakeUp();
 
             foreach (var command in commands)
             {
@@ -29,74 +27,72 @@ namespace EscPosPrinter
                     switch (command.Tag)
                     {
                         case "ad":
-                            actions.Add(() => Printer.SetAlignRight());
-                            actions.Add(() => Printer.WriteLine(command.Value));
+                            Printer.SetAlignRight();
+                            Printer.WriteLine(command.Value);
                             break;
                         case "/ad":
-                            actions.Add(() => Printer.SetAlignLeft());
+                            Printer.SetAlignLeft();
                             break;
                         case "s":
-                            actions.Add(() => Printer.SetUnderline(2));
-                            actions.Add(() => Printer.WriteToBuffer(command.Value));
+                            Printer.SetUnderline(2);
+                            Printer.WriteToBuffer(command.Value);
                             break;
                         case "/s":
-                            actions.Add(() => Printer.SetUnderline(0));
+                            Printer.SetUnderline(0);
                             break;
 
                         case "b":
-                            actions.Add(() => Printer.BoldOn());
-                            actions.Add(() => Printer.WriteToBuffer(" " + command.Value));
+                            Printer.BoldOn();
+                            Printer.WriteToBuffer(" " + command.Value);
                             break;
                         case "/b":
-                            actions.Add(() => Printer.BoldOff());
+                            Printer.BoldOff();
                             break;
 
                         case "c":
-                            actions.Add(() => Printer.WriteToBuffer(command.Value + " "));
+                            Printer.WriteToBuffer(command.Value + " ");
                             break;
                         case "/c":
                             break;
 
                         case "ce":
-                            actions.Add(() => Printer.SetAlignCenter());
-                            actions.Add(() => Printer.WriteToBuffer(command.Value));
+                            Printer.SetAlignCenter();
+                            Printer.WriteToBuffer(command.Value);
                             break;
                         case "/ce":
-                            actions.Add(() => Printer.SetAlignLeft());
+                            Printer.SetAlignLeft();
                             break;
 
                         case "l":
-                            actions.Add(() => Printer.LineFeed());
+                            Printer.LineFeed();
                             break;
                         case "/l":
                             break;
 
                         case "sl":
-                            actions.Add(() => Printer.LineFeed(byte.Parse(command.Value)));
+                            Printer.LineFeed(byte.Parse(command.Value));
                             break;
                         case "/sl":
                             break;
 
                         case "gui":
-                            actions.Add(() => Printer.Guillotine());
+                            Printer.Guillotine();
                             break;
                         case "/gui":
                             break;
 
                         default:
-                            actions.Add(() => Printer.WriteToBuffer(command.Value));
+                            Printer.WriteToBuffer(command.Value);
                             break;
                     }
                 }
                 else
                 {
-                    actions.Add(() => Printer.WriteToBuffer(command.Value));
+                    Printer.WriteToBuffer(command.Value);
                 }
 
-                actions.Add(() => Printer.SetAlignLeft());
+                Printer.SetAlignLeft();
             }
-
-            return actions;
         }
     }
 }

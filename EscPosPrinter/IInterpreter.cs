@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace EscPosPrinter
+﻿namespace EscPosPrinter
 {
     public interface IInterpreter
     {
-        IList<Action> GenerateActionsForPrinter(string text);
+        void ExecuteInterpretationForPrinter(string text);
     }
 }

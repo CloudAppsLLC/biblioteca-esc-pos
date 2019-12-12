@@ -78,10 +78,8 @@ namespace EscPosPrinter.Console
                     printer.SetFontB();
                     printer.SetAlignLeft();
 
-                    var actionsForPrinter = new Interpreter(printer).GenerateActionsForPrinter(xml);
-
-                    if (actionsForPrinter != null)
-                        printer.ExecuteActions(actionsForPrinter);
+                    var interpreter = new Interpreter(printer);
+                    interpreter.ExecuteInterpretationForPrinter(xml);
 
                     printer.Reset();
                     printer.Sleep();

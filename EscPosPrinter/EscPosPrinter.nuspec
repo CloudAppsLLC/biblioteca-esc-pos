@@ -2,10 +2,10 @@
 <package >
   <metadata>
     <id>EscPosPrinter</id>
-    <version>1.0.0-preview</version>
+    <version>1.0.0-preview4</version>
     <title>ESC/POS Printer with tag interpreter for text formatation (for Thermal Printer).</title>
-    <authors>Luiz de Queiroz</authors>
-    <owners>Luiz de Queiroz</owners>
+    <authors>Luiz de Queiroz, Davi Holanda, Márcio Fonteles, Vitor Alcântara</authors>
+    <!-- <owners>Luiz de Queiroz</owners> -->
     <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
     <projectUrl>https://github.com/luizdequeiroz/biblioteca-esc-pos</projectUrl>
     <!-- <iconUrl></iconUrl> -->
