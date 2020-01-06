@@ -76,6 +76,7 @@ namespace EscPosPrinter
                             break;
 
                         case "gui":
+                            Printer.LineFeed();
                             Printer.Guillotine();
                             break;
                         case "/gui":
